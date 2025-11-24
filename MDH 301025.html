@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MyDataHub — Your Digital Sanctuary</title>
+    <!-- Tailwind CDN (dev) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={theme:{extend:{fontFamily:{sans:["Inter","ui-sans-serif","system-ui"]}}}}</script>
+    
+    <!-- Prefers‑color‑scheme + palette tokens  -->
+    <style>
+        /* ---------------  
+           Design Tokens
+        --------------- */
+        :root {
+            /* Light */
+            --bg: #f9fafb;           /* slate‑50  */
+            --surface: #ffffff;     /* white     */
+            --heading: #111827;    /* slate‑900 */
+            --primary: #374151;    /* slate‑700 */
+            --secondary: #6b7280;  /* slate‑500 */
+            --border: #e5e7eb;     /* slate‑200 */
+            --accent: #0a84ff;     /* hub blue  */
+            --accent-fg: #ffffff;
+            --success: #22c55e;
+            --glow-inner: rgba(10,132,255,.8);
+            --glow-outer: rgba(10,132,255,.08);
+        }
+        /* Dark override */
+        .dark :root {
+            --bg: #0f172a;          /* slate‑900 */
+            --surface: #1e293b;     /* slate‑800 */
+            --heading: #f9fafb;     /* slate‑50  */
+            --primary: #e2e8f0;     /* slate‑200 */
+            --secondary: #94a3b8;   /* slate‑400 */
+            --border: #334155;      /* slate‑700 */
+            --accent: #0a84ff;
+            --accent-fg: #ffffff;
+            --success: #22c55e;
+            --glow-inner: rgba(10,132,255,.85);
+            --glow-outer: rgba(10,132,255,.12);
+        }
+        
+        /* ---------------  
+           Base & Motion
+        --------------- */
+        html{scroll-behavior:smooth}
+        body{background:var(--bg);color:var(--primary);font-family:Inter,Helvetica,sans-serif;line-height:1.75;overflow-x:hidden}
+        h1,h2,h3,h4,h5,h6{color:var(--heading);}
+        .link{color:var(--accent);transition:color .25s cubic-bezier(.23,1,.32,1)}
+        .link:hover{color:#4f9dff}
+        
+        /* universal section */
+        .section{padding:10vh 4vw 8vh;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative}
+        
+        /* UPDATED: Enforce distinct scroll sections AND vertically center content */
+        .section-screen { min-height: 95vh; justify-content: center; } /* Use 95vh to be safe from all browser chrome */
+
+        /* hero should fill */
+        #hero.section{min-height:100vh;justify-content:center;padding-bottom:4vh}
+        
+        /* ----- Motion ----- */
+        .reveal{opacity:0;transform:translateY(26px);transition:opacity .95s cubic-bezier(.23,1,.32,1),transform .95s cubic-bezier(.23,1,.32,1)}
+        .reveal.show{opacity:1;transform:none}
+        /* Staggered Delays */
+        .reveal.delay-150{transition-delay:150ms}
+        .reveal.delay-300{transition-delay:300ms}
+        .reveal.delay-500{transition-delay:500ms}
+        .reveal.delay-700{transition-delay:700ms}
+
+        /* chevron physics bounce */
+        @keyframes bounce{0%{transform:translateY(0)}30%{transform:translateY(10px)}60%{transform:translateY(-4px)}100%{transform:translateY(0)}}
+        .chevron{animation:bounce 2.8s cubic-bezier(.25,.46,.45,.94) infinite;color:var(--accent);font-size:2.25rem;cursor:pointer}
+        
+        /* Particle Drift Animation */
+        @keyframes drift {
+            0% { transform: translate(0px, 0px) scale(1); }
+            25% { transform: translate(15px, 5px) scale(1.05); }
+            50% { transform: translate(-10px, 10px) scale(1); }
+            75% { transform: translate(5px, -15px) scale(0.95); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        @keyframes drift-fast {
+            0% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(-10px, 15px) scale(0.95); }
+            50% { transform: translate(15px, -5px) scale(1); }
+            75% { transform: translate(-5px, -10px) scale(1.05); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+        
+        /* ---------------  
+           Components
+        --------------- */
+        
+        /* "Locus Shield" Logo */
+        .logo-mark-wrapper {
+            width: 96px;
+            height: 96px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.1rem;
+            transform: rotate(-45deg); /* Aligns opening to bottom */
+            transition: transform 0.4s var(--ease-out-quint);
+        }
+        .logo-mark-wrapper:hover .user-arc {
+            transform: scale(1.05) translate(-10px, 10px) rotate(-10deg);
+            filter: brightness(1.2);
+        }
+        .shield-arc, .user-arc {
+            position: absolute;
+            border-radius: 50%;
+            width: 100%;
+            height: 100%;
+        }
+        .shield-arc {
+            border: 12px solid var(--border); 
+            border-top-color: transparent;
+            border-right-color: transparent;
+            transform: rotate(45deg);
+        }
+        .dark .shield-arc {
+            border-color: #4B5563; /* Gray 600 */
+            border-top-color: transparent;
+            border-right-color: transparent;
+        }
+        .user-arc {
+            width: 65%;
+            height: 65%;
+            border: 7px solid var(--accent); 
+            border-right-color: transparent;
+            border-bottom-color: transparent;
+            transform: translate(-10px, 10px) rotate(-10deg);
+            transition: all 0.4s var(--ease-out-quint);
+        }
+
+        /* "Artistic" Hub SVG */
+        @keyframes core-pulse {
+            from { opacity: .75; transform: scale(.96) }
+            to { opacity: 1; transform: scale(1.05) }
+        }
+        @keyframes shield-breathe {
+            from { transform: scale(1); opacity: .7; }
+            to { transform: scale(1.02); opacity: 1; }
+        }
+        #hubCoreGlow {
+            animation: core-pulse 5s ease-in-out infinite alternate;
+        }
+        #shieldLayers {
+            animation: shield-breathe 8s ease-in-out infinite alternate;
+        }
+        
+        /* Form Elements */
+        input[type=email]{background:var(--surface);border:1px solid var(--border);padding:.9rem 1.4rem;border-radius:.5rem;width:100%;color:var(--heading);transition:border .25s, box-shadow .25s}
+        input[type=email]:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(10,132,255,.35)}
+        button[type=submit]{background:var(--accent);color:var(--accent-fg);padding:1rem 1.5rem;border-radius:.5rem;width:100%;font-weight:600;transition:transform .25s,box-shadow .25s;background-origin:border-box}
+        button[type=submit]:hover{transform:scale(1.03);box-shadow:0 5px 20px var(--glow-outer)}
+        button[type=submit]:active{transform:scale(.98)}
+
+        /* Pioneer Certificate Button Style */
+        .btn-certificate {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem; /* 8px */
+            margin-top: 2rem; /* 32px */
+            padding: 0.75rem 1.5rem; /* 12px 24px */
+            border: 1px solid var(--border);
+            color: var(--primary);
+            border-radius: 0.5rem; /* 8px */
+            font-weight: 600;
+            transition: all 0.25s cubic-bezier(.23,1,.32,1);
+        }
+        .btn-certificate:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: var(--glow-outer);
+        }
+        
+    </style>
+</head>
+<body class="dark"> <!-- toggle 'dark' class for light / dark -->
+
+<!-- ========= 0. HERO ========= -->
+<section id="hero" class="section">
+    
+    <!-- "Locus Shield" Logo -->
+    <div class="logo-mark-wrapper reveal show" aria-label="MyDataHub Logo">
+        <div class="shield-arc" aria-hidden="true"></div>
+        <div class="user-arc" aria-hidden="true"></div>
+    </div>
+
+    <div class="reveal show logotype text-lg font-semibold tracking-tight mb-4" style="transition-delay:100ms;">MyDataHub</div>
+    <h1 class="reveal show text-4xl md:text-5xl font-bold leading-tight" style="transition-delay:200ms;">Your Data. Your Sanctuary.</h1>
+    <p class="reveal show text-xl md:text-2xl text-[var(--secondary)] mt-3" style="transition-delay:300ms;">It’s time for clarity. It’s time for control.</p>
+    <div class="chevron mt-10" onclick="document.querySelector('#awakening').scrollIntoView({behavior:'smooth'});">&darr;</div>
+</section>
+
+<!-- ========= 1. AWAKENING ========= -->
+<section id="awakening" class="section">
+    <div id="starField" class="relative w-full h-52 mb-6">
+        <!-- Particles will be spawned here by JS -->
+    </div>
+    <div class="max-w-3xl mx-auto">
+        <!-- UPDATED: Increased vertical spacing (mb-10) -->
+        <p class="reveal text-2xl md:text-3xl mb-10">Your digital life: scattered, exposed, a story written by others. What they call “connection” feels like exploitation. It wasn’t meant to be this way.</p>
+        <!-- UPDATED: Increased vertical spacing (mb-12) -->
+        <p class="reveal delay-150 italic text-[var(--secondary)] text-2xl md:text-3xl mb-12">(Are you tired of being the unseen product in their profit equation?)</p>
+        <p class="reveal delay-300 text-2xl md:text-3xl font-medium"><span class="link">We believe in a different future.</span> A place of <span class="font-semibold">focus</span>, <span class="font-semibold">trust</span>, and <span class="font-semibold">true ownership</span> – a place that is <span class="font-semibold">yours</span>.</p>
+    </div>
+</section>
+
+<!-- ========= 2. SANCTUARY / HUB ========= -->
+<!-- UPDATED: Added section-screen class -->
+<section id="sanctuary" class="section section-screen">
+    
+    <!-- ***** 15/10 COPY CHANGE IMPLEMENTED HERE ***** -->
+    <h2 class="reveal text-4xl md:text-5xl font-bold mb-10">This is Your Sanctuary.</h2>
+
+    <!-- "Artistic" Hub SVG -->
+    <div id="hubWrap" class="reveal delay-150 w-full max-w-[440px]">
+        <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <!-- Core Gradient -->
+                <radialGradient id="coreG" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="var(--glow-inner)"/>
+                    <stop offset="65%" stop-color="var(--glow-inner)" stop-opacity="0.15"/>
+                    <stop offset="100%" stop-color="var(--glow-inner)" stop-opacity="0"/>
+                </radialGradient>
+                <!-- Shield Gradient (more ethereal) -->
+                <radialGradient id="shieldG" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="var(--glow-outer)" stop-opacity="0" />
+                    <stop offset="70%" stop-color="var(--glow-outer)" stop-opacity="1" />
+                    <stop offset="100%" stop-color="var(--glow-outer)" stop-opacity="0" />
+                </radialGradient>
+                <!-- Blur Filter -->
+                <filter id="softBlur" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="8" />
+                </filter>
+            </defs>
+            
+            <!-- Shield Layers (Blurred & Pulsing Opacity) -->
+            <g id="shieldLayers" filter="url(#softBlur)">
+                <ellipse id="shieldLayer1" cx="200" cy="150" rx="140" ry="100" fill="url(#shieldG)" />
+                <ellipse id="shieldLayer2" cx="200" cy="150" rx="125" ry="90" fill="url(#shieldG)" opacity="0.7" />
+            </g>
+
+            <!-- Luminous Core (Pulsing Scale/Opacity) -->
+            <g id="hubCoreGlow">
+                <circle cx="200" cy="150" r="52" fill="url(#coreG)"/>
+                <circle cx="200" cy="150" r="38" fill="var(--accent)" fill-opacity=".9"/>
+            </g>
+        </svg>
+    </div>
+
+    <!-- Pillars (Sequenced Reveal) -->
+    <div class="flex flex-col items-center gap-12 mt-8 max-w-3xl mx-auto">
+        <div class="pillar reveal delay-300 max-w-lg">
+            <svg class="mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/><path d="M12 3v9l3 3"/></svg>
+            <h3 class="text-xl font-semibold mb-1">Absolute Control</h3>
+            <p class="text-[var(--secondary)]">This is your space. You hold the only key. Grant access, revoke it instantly.</p>
+        </div>
+        <div class="pillar reveal delay-500 max-w-lg">
+            <svg class="mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
+            <h3 class="text-xl font-semibold mb-1">Profound Security</h3>
+            <p class="text-[var(--secondary)]">Beyond a simple vault: a foundation of trust designed for peace of mind.</p>
+        </div>
+        <div class="pillar reveal delay-700 max-w-lg">
+            <svg class="mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 12h18M12 3v18"/><circle cx="12" cy="12" r="4"/></svg>
+            <h3 class="text-xl font-semibold mb-1">Recognised Value</h3>
+            <p class="text-[var(--secondary)]">When <em>you</em> choose to share, <em>you</em> define the terms. You receive the value.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ========= 3. HORIZON ========= -->
+<!-- UPDATED: Added section-screen class -->
+<section id="horizon" class="section section-screen">
+    <h2 class="reveal text-4xl md:text-5xl font-bold mb-6">This is Only the Beginning.</h2>
+    <!-- UPDATED: "Hub" changed to "Sanctuary" -->
+    <p class="reveal delay-150 text-xl md:text-2xl text-[var(--secondary)] max-w-3xl mx-auto mb-8">Your <strong>Sanctuary</strong> evolves with you — unlocking personal insights that truly serve you and pioneering a fairer, more thoughtful digital economy. Join today to secure your data and help build this future, together.</p>
+    
+    <!-- UPDATED: "Hub Points" changed to "Pioneer Points" -->
+    <p class="reveal delay-300 text-xl md:text-2xl font-medium max-w-3xl mx-auto text-center">As a <span class="link">Founding Pioneer</span>, you’ll gain early influence, priority access, and <span class="link">Pioneer Points</span> — your share in the future we’re building.</p>
+</section>
+
+<!-- ========= 4. INVITATION ========= -->
+<!-- UPDATED: Added section-screen class -->
+<section id="invitation" class="section section-screen">
+    <div id="invitePane" class="w-full max-w-xl">
+        <h2 class="reveal text-4xl md:text-5xl font-bold mb-6">Step Into Your Sanctuary.</h2>
+        <p class="reveal delay-150 text-xl md:text-2xl text-[var(--secondary)] mb-8">Join the Founding Pioneers and reserve your exclusive place. Your journey to digital independence starts now.</p>
+        
+        <form id="waitlistForm" class="space-y-3 reveal delay-300" novalidate>
+            <input type="email" id="emailInput" placeholder="Your email address" required />
+            <p class="text-sm text-[var(--secondary)]">Only for MyDataHub updates and Founding Circle access. No spam, ever. That's our vow.</p>
+            <button type="submit" id="ctaButton">Secure My Sanctuary</button>
+            <p class="text-xs italic text-[var(--secondary)]">(Because peace of mind is priceless.)</p>
+        </form>
+    </div>
+    
+    <!-- Success Message -->
+    <div id="welcomeMessage" class="hidden w-full max-w-xl text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" style="color:var(--success)" class="mx-auto mb-6" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>
+        <h2 class="text-4xl md:text-5xl font-bold mb-3" style="color:var(--success)">Welcome, Pioneer.</h2>
+        <p class="text-xl md:text-2xl">Your place is reserved. We’re honoured to have you.</p>
+        <p class="text-xl md:text-2xl mt-2">Your <span class="link">Mission Briefing</span> is on its way — including your invite to our Founding Circle community.</p>
+        
+        <!-- Styled Certificate Button -->
+        <a href="#" class="btn-certificate">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.418a.75.75 0 1 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 1 0-1.09-1.03L10.75 11.364V2.75Z"/><path d="M3.5 14.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 20h10.5A2.75 2.75 0 0 0 18 17.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z"/></svg>
+            <span>Download Your Founding Pioneer Certificate</span>
+        </a>
+    </div>
+</section>
+
+<!-- ========= FOOTER (with Toggle) ========= -->
+<footer class="text-center p-12 space-y-8">
+    <div class="mt-8 text-sm text-[var(--secondary)] reveal">
+        <p>Crafted with care by a team dedicated to restoring digital dignity. <a href="#" class="link">Our Belief</a>.</p>
+        <p>We respect your privacy. <a href="#" class="link">Our Solemn Vow</a>.</p>
+    </div>
+    
+    <!-- Theme Toggle Location -->
+    <button id="themeToggle" aria-label="Toggle theme" class="reveal delay-150 inline-block p-2 rounded-md border border-[var(--border)] bg-[var(--surface)] text-[var(--heading)] hover:scale-110 transition">
+        <svg id="sunIcon" class="hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 4.75a.75.75 0 0 1 .75-.75h.5a.75.75 0 0 1 0 1.5h-.5A.75.75 0 0 1 12 4.75Zm7.03 1.97a.75.75 0 0 0-1.06-1.06l-.35.35a.75.75 0 1 0 1.06 1.06l.35-.35Zm-14.06 0-.35-.35a.75.75 0 0 0-1.06 1.06l.35.35a.75.75 0 0 0 1.06-1.06Zm11.78 9.28a4.28 4.28 0 1 1-8.56 0 4.28 4.28 0 0 1 8.56 0Zm2.25 0a6.53 6.53 0 1 0-13.06 0 6.53 6.53 0 0 0 13.06 0ZM12 18.25a.75.75 0 0 0-.75.75v.5a.75.75 0 1 0 1.5 0v-.5a.75.75 0 0 0-.75-.75Zm8-6.25a.75.75 0 0 1 .75.75v.5a.75.75 0 1 1-1.5 0v-.5a.75.75 0 0 1 .75-.75Zm-16 0a.75.75 0 0 0-.75.75v.5a.75.75 0 1 0 1.5 0v-.5a.75.75 0 0 0-.75-.75Zm14.47 6.78a.75.75 0 0 0-1.06 1.06l.35.35a.75.75 0 0 0 1.06-1.06l-.35-.35Zm-12.94 0-.35.35a.75.75 0 1 0 1.06 1.06l.35-.35a.75.75 0 1 0-1.06-1.06Z"/></svg>
+        <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M17.75 12c0 .443-.038.88-.11 1.306a.75.75 0 0 0 1.087.79A9.252 9.252 0 0 0 18 3.75a9.256 9.256 0 0 0-2.246-.295c-.495 0-.982.037-1.455.11a.75.75 0 0 0-.79 1.087 9.001 9.001 0 1 1-3.974 3.974.75.75 0 0 0-1.087-.79A9.254 9.254 0 0 0 3.75 12a9.25 9.25 0 0 0 14 7.95.75.75 0 0 0-.79-1.087A7.75 7.75 0 0 1 5.09 6.04 7.76 7.76 0 0 1 12 4.25a7.75 7.75 0 0 1 7.75 7.75Z"/></svg>
+    </button>
+</footer>
+
+<!-- ========= Packet Elem ========= -->
+<div id="emailPacket" class="fixed w-4 h-4 rounded-full bg-[var(--accent)] opacity-0 z-[999] pointer-events-none shadow-lg shadow-blue-500/50 flex items-center justify-center"></div>
+
+<!-- ---------------  -->
+<script>
+    // theme toggle
+    const themeToggle=document.getElementById("themeToggle"),sun=document.getElementById("sunIcon"),moon=document.getElementById("moonIcon"),html=document.documentElement;themeToggle.addEventListener("click",()=>{html.classList.toggle("dark");const isDark=html.classList.contains("dark");sun.style.display=isDark?"block":"none";moon.style.display=isDark?"none":"block";/* init state */ if(isDark){sun.style.display="block";moon.style.display="none"}else{sun.style.display="none";moon.style.display="block"}});
+    // Set initial toggle state
+    if (html.classList.contains("dark")) { sun.style.display = "block"; moon.style.display = "none"; } else { sun.style.display = "none"; moon.style.display = "block"; }
+
+
+    // reveal on scroll
+    const reveals=[...document.querySelectorAll(".reveal")];const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add("show");io.unobserve(e.target)}})},{threshold:.15});reveals.forEach(el=>io.observe(el));
+
+    // "Vulnerable" Particle Drift Animation
+    const starField=document.getElementById("starField");function spawnStars(){if(!starField)return;const total=32;for(let i=0;i<total;i++){const s=document.createElement("div");const duration=Math.random()*20+15;const animName=i%2===0?'drift':'drift-fast';s.style.cssText=`position:absolute;width:6px;height:6px;border-radius:50%;background:${i%7===0?'var(--accent)':'var(--secondary)'};left:${Math.random()*100}%;top:${Math.random()*100}%;opacity:0;transform:scale(.5);transition:all 1.8s cubic-bezier(.785,.135,.15,.86) ${i*30}ms;animation:${animName} ${duration}s ease-in-out infinite alternate;`;starField.appendChild(s);setTimeout(()=>{s.style.opacity=Math.random()*.6+.3;s.style.transform="scale(1)"},100)};}
+    spawnStars();
+
+    // waitlist logic + packet flight
+    const form=document.getElementById("waitlistForm"),emailInput=document.getElementById("emailInput"),packet=document.getElementById("emailPacket"),invitePane=document.getElementById("invitePane"),welcome=document.getElementById("welcomeMessage"),btn=document.getElementById("ctaButton");
+    form.addEventListener("submit",e=>{e.preventDefault();if(!emailInput.validity.valid)return emailInput.reportValidity();btn.disabled=true;btn.textContent="Securing…";const start=emailInput.getBoundingClientRect(),hub=document.getElementById("hubWrap").getBoundingClientRect();packet.style.left=`${start.left+start.width/2-8}px`;packet.style.top=`${start.top+start.height/2-8}px`;packet.style.opacity=1;setTimeout(()=>{packet.style.transition="all .9s cubic-bezier(.785,.135,.15,.86)";packet.style.left=`${hub.left+hub.width/2-8}px`;packet.style.top=`${hub.top+hub.height/2-8}px`;packet.style.transform="scale(.35)";packet.style.opacity=0},80);setTimeout(()=>{invitePane.classList.add("hidden");welcome.classList.remove("hidden")},1100);});
+</script>
+</body>
+</html>
+
+
