@@ -24,37 +24,6 @@ import {
   RotateCcw,
 } from "lucide-react";
 
-function CountingNumber({ target }: { target: number }) {
-  const [count, setCount] = useState(target);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    // Live counting - increment randomly every 2-5 seconds
-    const scheduleNextIncrement = () => {
-      const randomDelay = Math.random() * 3000 + 2000; // 2-5 seconds
-      timeoutRef.current = setTimeout(() => {
-        setCount((prevCount) => {
-          // Add 1-3 verifications randomly
-          const increment = Math.floor(Math.random() * 3) + 1;
-          return prevCount + increment;
-        });
-        scheduleNextIncrement(); // Schedule the next increment
-      }, randomDelay);
-    };
-
-    scheduleNextIncrement();
-
-    // Cleanup function
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
-
-  return <span className="font-mono">{count.toLocaleString()}</span>;
-}
-
 // Circular Progress Chart Component with Animation
 interface CircularChartProps {
   score: number;
@@ -196,12 +165,10 @@ export function ChatLandingWindow() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Particle field with mouse parallax and orbital animation
+  // Particle field
   useEffect(() => {
     const particleField = document.getElementById('particleField');
     if (!particleField) return;
-
-    const particles: HTMLDivElement[] = [];
 
     // Create particles
     const createParticles = () => {
@@ -223,140 +190,14 @@ export function ChatLandingWindow() {
           top: ${Math.random() * 100}%;
           opacity: ${Math.random() * 0.5 + 0.2};
           transform: scale(${Math.random()});
-          transition: transform 0.5s ease-out, left 1.5s cubic-bezier(0.16, 1, 0.3, 1), top 1.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 1.5s ease-out;
           box-shadow: ${isBlue ? '0 0 12px rgba(59, 130, 246, 0.8)' : 'none'};
         `;
         
         particleField.appendChild(particle);
-        particles.push(particle);
       }
     };
 
     createParticles();
-
-    // Mouse parallax effect
-    let mouseParallaxEnabled = true;
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!mouseParallaxEnabled) return;
-      const x = (window.innerWidth - e.pageX * 2) / 50;
-      const y = (window.innerHeight - e.pageY * 2) / 50;
-      particleField.style.transform = `translate(${x}px, ${y}px)`;
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-
-    // Scroll-triggered orbital animation
-    const handleScroll = () => {
-      const architectureSection = document.getElementById('architecture-section');
-      const orbitalSystem = document.getElementById('orbitalSystem');
-      const orbitingParticlesGroup = document.getElementById('orbitingParticles');
-      const hubCore = document.getElementById('hubCore');
-      const shieldLayers = document.getElementById('shieldLayers');
-      
-      if (!architectureSection || !orbitalSystem || !orbitingParticlesGroup) return;
-
-      const rect = architectureSection.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      
-      // Calculate scroll progress through the section (0 to 1)
-      const scrollProgress = Math.max(0, Math.min(1, 
-        (windowHeight - rect.top) / (windowHeight + rect.height)
-      ));
-
-      // When section comes into view (scrollProgress > 0.3)
-      if (scrollProgress > 0.3) {
-        mouseParallaxEnabled = false;
-        particleField.style.transform = 'translate(0, 0)';
-        
-        // Show orbital system
-        orbitalSystem.style.opacity = '1';
-        
-        // Animate particles to orbit
-        const particleSubset = particles.filter((_, i) => i % 4 === 0); // Take every 4th particle for performance
-        particleSubset.forEach((particle, index) => {
-          const angle = (index / particleSubset.length) * Math.PI * 2;
-          const radius = 50; // percentage from center
-          const centerX = 50; // center of viewport
-          const centerY = 50;
-          
-          const targetX = centerX + Math.cos(angle) * radius;
-          const targetY = centerY + Math.sin(angle) * radius;
-          
-          setTimeout(() => {
-            particle.style.left = `${targetX}%`;
-            particle.style.top = `${targetY}%`;
-            particle.style.opacity = '0.8';
-          }, index * 3); // Stagger the animation
-        });
-
-        // Create orbiting particles in SVG
-        if (orbitingParticlesGroup && orbitingParticlesGroup.children.length === 0) {
-          for (let i = 0; i < 60; i++) {
-            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            const angle = (i / 60) * Math.PI * 2;
-            const radius = 150 + Math.random() * 50;
-            const cx = 300 + Math.cos(angle) * radius;
-            const cy = 300 + Math.sin(angle) * radius;
-            const size = Math.random() * 3 + 2;
-            const isBlue = Math.random() > 0.5;
-            
-            circle.setAttribute('cx', cx.toString());
-            circle.setAttribute('cy', cy.toString());
-            circle.setAttribute('r', size.toString());
-            circle.setAttribute('fill', isBlue ? 'rgb(59, 130, 246)' : 'rgb(156, 163, 175)');
-            circle.setAttribute('opacity', (Math.random() * 0.5 + 0.3).toString());
-            
-            // Add rotation animation
-            const animateTransform = document.createElementNS('http://www.w3.org/2000/svg', 'animateTransform');
-            animateTransform.setAttribute('attributeName', 'transform');
-            animateTransform.setAttribute('type', 'rotate');
-            animateTransform.setAttribute('from', `0 300 300`);
-            animateTransform.setAttribute('to', `360 300 300`);
-            animateTransform.setAttribute('dur', `${20 + Math.random() * 20}s`);
-            animateTransform.setAttribute('repeatCount', 'indefinite');
-            
-            circle.appendChild(animateTransform);
-            orbitingParticlesGroup.appendChild(circle);
-          }
-        }
-
-        // Animate core pulsing
-        if (hubCore) {
-          hubCore.style.animation = 'pulse 4s ease-in-out infinite alternate';
-        }
-        
-        // Animate shield breathing
-        if (shieldLayers) {
-          shieldLayers.style.animation = 'breathe 7s ease-in-out infinite alternate';
-        }
-      } else {
-        mouseParallaxEnabled = true;
-        orbitalSystem.style.opacity = '0';
-      }
-    };
-
-    // Add CSS animations
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes pulse {
-        0% { opacity: 0.8; transform: scale(0.95); }
-        100% { opacity: 1; transform: scale(1.05); }
-      }
-      @keyframes breathe {
-        0% { transform: scale(1) rotate(0deg); opacity: 0.6; }
-        100% { transform: scale(1.02) rotate(2deg); opacity: 0.9; }
-      }
-    `;
-    document.head.appendChild(style);
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll(); // Initial check
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('scroll', handleScroll);
-      document.head.removeChild(style);
-    };
   }, []);
 
   // Handle section detection using Intersection Observer
@@ -393,8 +234,12 @@ export function ChatLandingWindow() {
                 setCurrentSection(3);
                 setShowScrollArrow(true);
                 break;
-              case "cta-section":
+              case "horizon-section":
                 setCurrentSection(4);
+                setShowScrollArrow(true);
+                break;
+              case "cta-section":
+                setCurrentSection(5);
                 setShowScrollArrow(false);
                 break;
             }
@@ -413,6 +258,7 @@ export function ChatLandingWindow() {
       "chat-demo-section",
       "trust-protocol-section",
       "architecture-section",
+      "horizon-section",
       "cta-section",
     ];
 
@@ -475,8 +321,12 @@ export function ChatLandingWindow() {
               newSection = 3;
               newShowArrow = isMobile ? false : true;
               break;
-            case "cta-section":
+            case "horizon-section":
               newSection = 4;
+              newShowArrow = isMobile ? false : true;
+              break;
+            case "cta-section":
+              newSection = 5;
               newShowArrow = false;
               break;
           }
@@ -509,6 +359,8 @@ export function ChatLandingWindow() {
       case 2:
         return "architecture-section";
       case 3:
+        return "horizon-section";
+      case 4:
         return "cta-section";
       default:
         return "trust-protocol-section";
@@ -572,9 +424,7 @@ export function ChatLandingWindow() {
     // Clear all messages to show input box again
     setMessages([]);
     setCtaShown(false);
-    setIsLoading(false);
     setFeedback(null);
-    // Focus could be added to the input field here if needed
   };
 
   const handleGoodResponse = () => {
@@ -942,47 +792,6 @@ export function ChatLandingWindow() {
         id="architecture-section"
         className="relative flex flex-col items-center justify-center min-h-[calc(100svh-2rem)] md:min-h-screen w-full px-4 py-12 md:py-16 overflow-hidden"
       >
-        {/* Orbital Particle System */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-          <svg 
-            id="orbitalSystem"
-            className="w-full h-full max-w-[600px] max-h-[600px] opacity-0 transition-opacity duration-1000"
-            viewBox="0 0 600 600" 
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <defs>
-              <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="rgb(59, 130, 246)" stopOpacity="0.8"/>
-                <stop offset="70%" stopColor="rgb(59, 130, 246)" stopOpacity="0.1"/>
-                <stop offset="100%" stopColor="rgb(59, 130, 246)" stopOpacity="0"/>
-              </radialGradient>
-              <linearGradient id="shieldGradient" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="rgb(156, 163, 175)" stopOpacity="0.1"/>
-                <stop offset="50%" stopColor="rgb(59, 130, 246)" stopOpacity="0.2"/>
-                <stop offset="100%" stopColor="rgb(156, 163, 175)" stopOpacity="0.1"/>
-              </linearGradient>
-              <filter id="blur" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="6" />
-              </filter>
-            </defs>
-            
-            {/* Breathing Shield Layers */}
-            <g id="shieldLayers" filter="url(#blur)">
-              <ellipse cx="300" cy="300" rx="210" ry="135" fill="none" stroke="url(#shieldGradient)" strokeWidth="2" />
-              <ellipse cx="300" cy="300" rx="195" ry="120" fill="url(#shieldGradient)" opacity="0.5" transform="rotate(-5 300 300)" />
-            </g>
-
-            {/* Pulsing Core */}
-            <g id="hubCore">
-              <circle cx="300" cy="300" r="60" fill="url(#coreGlow)" />
-              <circle cx="300" cy="300" r="22" fill="rgb(59, 130, 246)" />
-            </g>
-            
-            {/* Orbiting Particles */}
-            <g id="orbitingParticles"></g>
-          </svg>
-        </div>
-
         {/* Content */}
         <div className="relative z-10 w-full max-w-5xl mx-auto">
           {/* Header */}
@@ -1089,38 +898,127 @@ export function ChatLandingWindow() {
 
       </section>
 
-      {/* CTA Section + Footer Combined - Full Viewport */}
+      {/* Section 4: Horizon (Future) */}
+      <section
+        id="horizon-section"
+        className="flex flex-col items-center justify-center min-h-[calc(100svh-2rem)] md:min-h-screen w-full px-4 py-12 md:py-16"
+      >
+        <div className="w-full max-w-3xl mx-auto text-center space-y-12">
+          {/* Heading */}
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            viewport={{ once: true, margin: "-100px" }}
+            className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-gray-100"
+          >
+            This is Only the Beginning.
+          </motion.h2>
+
+          {/* Body Copy */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            className="text-lg md:text-2xl text-gray-600 dark:text-gray-400 leading-relaxed space-y-6"
+          >
+            <p>
+              Your <strong className="text-gray-900 dark:text-gray-100">Sanctuary</strong> evolves with you — unlocking personal insights that truly serve you and pioneering a fairer, more thoughtful digital economy. Join today to secure your data and help build this future, together.
+            </p>
+            
+            <p>
+              As a <span className="text-blue-500 dark:text-blue-400 font-medium">Founding Pioneer</span>, you'll gain early influence, priority access, and <span className="text-blue-500 dark:text-blue-400 font-medium">Pioneer Points</span> — your share in the future we're building.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Section 5: CTA (Invitation) */}
       <section
         id="cta-section"
-        className="flex flex-col items-center justify-center min-h-[calc(100svh-2rem)] md:min-h-screen w-full px-4 py-2 md:py-8 my-4 md:my-0"
+        className="flex flex-col items-center justify-center min-h-[calc(100svh-2rem)] md:min-h-screen w-full px-4 py-12 md:py-16"
       >
-        {/* CTA Content */}
-        <div className="w-full max-w-6xl mx-auto flex-1 flex items-center justify-center">
-          <div className="w-full">
-            <div className="bg-gray-50 dark:bg-gray-900 py-16 grid grid-cols-12 rounded-lg">
-              <div className="px-4 md:px-0 md:col-span-10 md:col-start-2 col-span-12 flex flex-col text-center">
-                <h1 className="text-2xl md:text-3xl lg:text-4xl tracking-tighter leading-tight max-w-4xl text-gray-900 dark:text-gray-100 text-balance mb-6">
-                  The Infrastructure of Trust.
-                </h1>
-                <div className="mb-4 md:mb-8">
-                  <p className="text-gray-600 dark:text-gray-400 max-w-4xl text-lg mx-auto">
-                    Built to verify who's real.
-                  </p>
-                </div>
-                <div className="flex flex-col items-center justify-center">
-                  <Link href="https://inverus.ai/auth">
-                    <Button className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive shadow-xs h-9 has-[>svg]:px-3 bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 px-8 py-3 rounded-full transition duration-200">
-                      Launch the Trust Layer
-                    </Button>
-                  </Link>
-                </div>
+        <div className="w-full max-w-lg mx-auto flex-1 flex items-center justify-center">
+          <div className="w-full space-y-6">
+            {/* Scarcity Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              viewport={{ once: true }}
+              className="flex justify-center"
+            >
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full text-sm font-semibold text-blue-500 dark:text-blue-400 shadow-sm">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                <span>Limited Early Access: Cohort 1</span>
               </div>
-            </div>
+            </motion.div>
+
+            {/* Heading */}
+            <motion.h2
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+              viewport={{ once: true }}
+              className="text-4xl md:text-6xl font-bold text-center tracking-tight text-gray-900 dark:text-gray-100"
+            >
+              Step Into Your Sanctuary.
+            </motion.h2>
+
+            {/* Subtitle */}
+            <motion.p
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+              viewport={{ once: true }}
+              className="text-xl text-gray-600 dark:text-gray-400 text-center"
+            >
+              Join the Founding Pioneers and reserve your exclusive place. Your journey to digital independence starts now.
+            </motion.p>
+
+            {/* Form */}
+            <motion.form
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
+              viewport={{ once: true }}
+              className="space-y-4"
+            >
+              <div className="relative">
+                <input
+                  type="email"
+                  placeholder="Enter your email address"
+                  required
+                  autoComplete="email"
+                  className="w-full px-6 py-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-lg text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
+                />
+              </div>
+
+              {/* Trust Microcopy */}
+              <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                Only for MyDataHub updates and Founding Circle access. No spam, ever. That's our vow.
+              </p>
+
+              {/* CTA Button */}
+              <button
+                type="submit"
+                className="w-full px-8 py-4 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold text-lg rounded-xl transition-all duration-200 hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/20"
+              >
+                Secure My Sanctuary
+              </button>
+
+              {/* Justification Nudge */}
+              <p className="text-xs italic text-gray-500 dark:text-gray-400 text-center opacity-80">
+                (Because peace of mind is priceless.)
+              </p>
+            </motion.form>
+
           </div>
         </div>
 
-        {/* Footer - Bottom of CTA Section */}
-        <footer className="w-full border-t border-gray-200 dark:border-gray-700 py-8 mt-auto">
+        {/* Footer */}
+        <footer className="w-full border-t border-gray-200 dark:border-gray-700 py-8 mt-16">
           <div className="w-full max-w-6xl mx-auto px-4">
             <div className="relative">
               {/* Mobile Layout - Stacked */}
@@ -1159,28 +1057,28 @@ export function ChatLandingWindow() {
                   </Link>
                 </div>
 
-                {/* Verifications - Centered */}
+                {/* Footer Text */}
                 <div className="flex items-center justify-center text-center">
-                  <div className="text-green-600 dark:text-green-400">
-                    <CountingNumber target={821432781} /> Identities Processed
-                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Crafted with care by a team dedicated to restoring digital dignity.
+                  </p>
                 </div>
 
                 {/* Links */}
                 <div className="flex items-center justify-center gap-2 text-gray-600 dark:text-gray-400">
-                  <a
-                    href="mailto:andrew@inverus.tech"
-                    className="hover:text-gray-900 dark:hover:text-gray-100 transition duration-200"
-                  >
-                    Investors
-                  </a>
-                  <span>·</span>
-                  <a
+                  <Link
                     href="/manifesto"
-                    className="hover:text-gray-900 dark:hover:text-gray-100 transition duration-200"
+                    className="text-blue-500 dark:text-blue-400 hover:text-gray-900 dark:hover:text-gray-100 transition duration-200"
                   >
-                    The Manifesto
-                  </a>
+                    Our Belief
+                  </Link>
+                  <span>·</span>
+                  <Link
+                    href="/manifesto"
+                    className="text-blue-500 dark:text-blue-400 hover:text-gray-900 dark:hover:text-gray-100 transition duration-200"
+                  >
+                    Our Solemn Vow
+                  </Link>
                 </div>
               </div>
 
@@ -1220,29 +1118,29 @@ export function ChatLandingWindow() {
                   </Link>
                 </div>
 
-                {/* Center Verifications - Perfectly Centered */}
+                {/* Center Footer Text - Perfectly Centered */}
                 <div className="flex items-center justify-center text-center">
-                  <div className="text-green-600 dark:text-green-400">
-                    <CountingNumber target={821432781} /> Identities Processed
-                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Crafted with care by a team dedicated to restoring digital dignity.
+                  </p>
                 </div>
 
                 {/* Right Links */}
                 <div className="absolute right-0 top-0">
                   <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                    <a
-                      href="mailto:andrew@inverus.tech"
-                      className="hover:text-gray-900 dark:hover:text-gray-100 transition duration-200"
-                    >
-                      Investors
-                    </a>
-                    <span>·</span>
-                    <a
+                    <Link
                       href="/manifesto"
-                      className="hover:text-gray-900 dark:hover:text-gray-100 transition duration-200"
+                      className="text-blue-500 dark:text-blue-400 hover:text-gray-900 dark:hover:text-gray-100 transition duration-200"
                     >
-                      The Manifesto
-                    </a>
+                      Our Belief
+                    </Link>
+                    <span>·</span>
+                    <Link
+                      href="/manifesto"
+                      className="text-blue-500 dark:text-blue-400 hover:text-gray-900 dark:hover:text-gray-100 transition duration-200"
+                    >
+                      Our Solemn Vow
+                    </Link>
                   </div>
                 </div>
               </div>
