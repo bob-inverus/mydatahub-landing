@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MyDataHub — Your Digital Sanctuary</title>
+    
+    <!-- 1. PRELOAD CRITICAL ASSETS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Using Inter with specific font-feature-settings support -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ["Inter", "ui-sans-serif", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+                    },
+                    animation: {
+                        'shimmer': 'shimmer 2.5s linear infinite',
+                    },
+                    keyframes: {
+                        shimmer: {
+                            '0%': { backgroundPosition: '-1000px 0' },
+                            '100%': { backgroundPosition: '1000px 0' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* ---------------  
+           20/10 DESIGN TOKENS
+        --------------- */
+        :root {
+            /* Light Mode */
+            --bg: #f9fafb;
+            --surface: #ffffff;
+            --heading: #111827;
+            --primary: #374151;
+            --secondary: #6b7280;
+            --border: #e5e7eb;
+            --accent: #0a84ff; /* Vivid Blue */
+            --accent-fg: #ffffff;
+            --success: #10b981; /* Emerald 500 */
+            --gold: #d97706;    /* Amber 600 for "Treasure" */
+            --gold-glow: rgba(217, 119, 6, 0.15);
+            
+            /* The "Magic" Glows */
+            --glow-inner: rgba(10, 132, 255, 0.8);
+            --glow-outer: rgba(10, 132, 255, 0.08);
+            
+            /* Jony's "Snappy" Curve (Ease-Out-Expo) */
+            --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .dark :root {
+            /* Dark Mode (The Default Experience) */
+            --bg: #0f172a;      /* Slate 900 */
+            --surface: #1e293b; /* Slate 800 */
+            --heading: #f9fafb; /* Slate 50 */
+            --primary: #e2e8f0; /* Slate 200 */
+            --secondary: #94a3b8; /* Slate 400 */
+            --border: #334155;  /* Slate 700 */
+            --accent: #3b82f6;  /* Blue 500 (Better contrast on dark) */
+            --accent-fg: #ffffff;
+            --success: #34d399; /* Emerald 400 */
+            --gold: #fbbf24;    /* Amber 400 */
+            --gold-glow: rgba(251, 191, 36, 0.2);
+            
+            --glow-inner: rgba(59, 130, 246, 0.85);
+            --glow-outer: rgba(59, 130, 246, 0.15);
+        }
+
+        /* ---------------  
+           BASE & TYPOGRAPHY (Bespoke Feel)
+        --------------- */
+        html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body { 
+            background: var(--bg); 
+            color: var(--primary); 
+            line-height: 1.75; 
+            overflow-x: hidden;
+            transition: background-color 0.5s var(--ease-premium), color 0.5s var(--ease-premium);
+        }
+        
+        /* Advanced Typographic Features for Inter */
+        body, h1, h2, h3, p, input, button {
+            font-feature-settings: "cv11", "ss01"; /* Single-story 'a', alternate digits */
+        }
+        
+        h1, h2, h3 { color: var(--heading); letter-spacing: -0.025em; } /* Tight, premium tracking */
+        
+        .link { color: var(--accent); transition: color 0.3s var(--ease-premium); cursor: pointer; }
+        .link:hover { color: var(--heading); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+
+        /* ---------------  
+           LAYOUT & SECTIONS
+        --------------- */
+        /* Enforce full viewport sections with centered content */
+        .section-screen { 
+            min-height: 95vh; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 2rem 1rem; 
+            position: relative;
+        }
+        /* Hero specific */
+        #hero.section-screen { min-height: 100vh; padding-bottom: 5vh; }
+
+        /* ---------------  
+           MOTION & INTERACTION (The "Feel")
+        --------------- */
+        .reveal { 
+            opacity: 0; 
+            transform: translateY(30px) scale(0.98); 
+            transition: opacity 1.2s var(--ease-premium), transform 1.2s var(--ease-premium); 
+            will-change: opacity, transform;
+        }
+        .reveal.show { opacity: 1; transform: none; }
+        
+        /* Stagger delays */
+        .delay-100 { transition-delay: 100ms; }
+        .delay-200 { transition-delay: 200ms; }
+        .delay-300 { transition-delay: 300ms; }
+        .delay-500 { transition-delay: 500ms; }
+        .delay-700 { transition-delay: 700ms; }
+
+        /* Gentle Chevron Pulse */
+        @keyframes soft-bounce {
+            0%, 100% { transform: translateY(0); opacity: 0.5; }
+            50% { transform: translateY(6px); opacity: 1; }
+        }
+        .chevron { animation: soft-bounce 3s ease-in-out infinite; color: var(--accent); font-size: 2rem; cursor: pointer; }
+
+        /* "Alive" Star Field (Drift) */
+        #starField {
+            position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0;
+            /* Will be moved by JS for parallax */
+            transition: transform 0.1s linear; 
+        }
+
+        /* ---------------  
+           COMPONENTS (The "Craft")
+        --------------- */
+        
+        /* 1. Locus Shield Logo (CSS Implementation) */
+        .logo-mark-wrapper {
+            width: 80px; height: 80px;
+            position: relative;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        .shield-arc {
+            position: absolute; inset: 0;
+            border: 10px solid var(--border);
+            border-radius: 50%;
+            border-bottom-color: transparent; /* Opening */
+            transform: rotate(-45deg); /* Orient opening to bottom-left */
+            transition: border-color 0.5s var(--ease-premium);
+        }
+        .dark .shield-arc { border-color: #475569; /* Slate 600 */ border-bottom-color: transparent; }
+        
+        .user-arc {
+            position: absolute; inset: 12px; /* Smaller, inside */
+            border: 6px solid var(--accent);
+            border-radius: 50%;
+            border-top-color: transparent;
+            border-right-color: transparent;
+            border-bottom-color: transparent; /* Creates a partial arc */
+            transform: rotate(135deg); /* Position in the opening */
+            filter: drop-shadow(0 0 8px var(--accent)); /* Luminous glow */
+            opacity: 0.9;
+        }
+
+        /* 2. The Sanctuary Hub (SVG Art) */
+        #hubWrap svg { overflow: visible; }
+        @keyframes core-pulse { 0% { opacity: .8; transform: scale(.95); } 100% { opacity: 1; transform: scale(1.05); } }
+        @keyframes shield-breathe { 0% { transform: scale(1) rotate(0deg); opacity: .6; } 100% { transform: scale(1.02) rotate(2deg); opacity: .9; } }
+        
+        #hubCoreGlow { animation: core-pulse 4s ease-in-out infinite alternate; }
+        #shieldLayers { animation: shield-breathe 7s ease-in-out infinite alternate; }
+
+        /* 3. Form & Inputs (Input Enchantment) */
+        .input-group { position: relative; width: 100%; }
+        input[type=email] {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 1rem 1.5rem;
+            border-radius: 12px; /* More modern radius */
+            width: 100%;
+            font-size: 1.1rem;
+            color: var(--heading);
+            transition: all 0.3s var(--ease-premium);
+        }
+        input[type=email]:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--glow-outer), 0 0 12px var(--glow-outer);
+            transform: scale(1.01); /* Subtle pop */
+        }
+        
+        /* 4. The "Gold" Certificate Button (Reward) */
+        .btn-certificate {
+            display: inline-flex; align-items: center; gap: 0.75rem;
+            margin-top: 2rem; padding: 1rem 2rem;
+            background: transparent;
+            border: 1px solid var(--gold); /* Gold border */
+            color: var(--gold);
+            border-radius: 12px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            transition: all 0.3s var(--ease-premium);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-certificate:hover {
+            background: var(--gold-glow);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px var(--gold-glow);
+        }
+        
+        /* Standard CTA */
+        .btn-primary {
+            background: var(--accent);
+            color: var(--accent-fg);
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            width: 100%;
+            font-size: 1.1rem;
+            transition: all 0.3s var(--ease-premium);
+            position: relative;
+            overflow: hidden;
+        }
+        /* Subtle shimmer effect on CTA */
+        .btn-primary::after {
+            content: ""; position: absolute; top: 0; left: 0; width: 200%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+            transform: skewX(-20deg) translateX(-150%);
+            transition: transform 0.5s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 30px var(--glow-outer);
+        }
+        .btn-primary:hover::after {
+            transform: skewX(-20deg) translateX(150%);
+            transition: transform 1s; /* Shimmer on hover */
+        }
+
+        /* 5. Scarcity Badge */
+        .badge-scarcity {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 12px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .badge-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
+    </style>
+</head>
+<body class="dark selection:bg-blue-500 selection:text-white">
+
+<!-- ========= THEME TOGGLE (Floating Bottom Left) ========= -->
+<div class="fixed bottom-6 left-6 z-50 reveal delay-700">
+    <button id="themeToggle" aria-label="Switch Theme" class="p-3 rounded-full bg-[var(--surface)] border border-[var(--border)] text-[var(--secondary)] hover:text-[var(--heading)] hover:scale-110 transition-all shadow-lg">
+        <svg id="sunIcon" class="hidden w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        <svg id="moonIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+    </button>
+</div>
+
+<!-- ========= 0. THRESHOLD (Hero) ========= -->
+<section id="hero" class="section-screen">
+    <!-- Locus Shield Logo (CSS) -->
+    <div class="logo-mark-wrapper reveal show">
+        <div class="shield-arc"></div>
+        <div class="user-arc"></div>
+    </div>
+
+    <div class="reveal show logotype text-lg font-medium tracking-wide uppercase text-[var(--secondary)] mb-6 delay-100">MyDataHub</div>
+    
+    <h1 class="reveal show text-5xl md:text-7xl font-bold leading-tight tracking-tighter mb-6 delay-200 text-center">
+        Your Data.<br />Your Sanctuary.
+    </h1>
+    
+    <p class="reveal show text-xl md:text-2xl text-[var(--secondary)] delay-300">
+        It’s time for clarity. It’s time for control.
+    </p>
+    
+    <div class="absolute bottom-10 chevron reveal delay-500" onclick="document.querySelector('#awakening').scrollIntoView({behavior:'smooth'});">
+        &darr;
+    </div>
+</section>
+
+<!-- ========= 1. AWAKENING (The Problem) ========= -->
+<section id="awakening" class="section-screen">
+    <!-- Mouse-Reactive Starfield -->
+    <div id="starFieldContainer" class="absolute inset-0 overflow-hidden z-0">
+        <div id="starField" class="w-full h-full"></div>
+    </div>
+
+    <div class="relative z-10 max-w-3xl mx-auto text-center">
+        <!-- Staggered, Spaced Text Blocks -->
+        <p class="reveal text-2xl md:text-4xl leading-normal font-light mb-16">
+            Your digital life: scattered, exposed, a story written by others. What they call “connection” often feels like exploitation. <br/><span class="text-[var(--secondary)]">It wasn’t meant to be this way.</span>
+        </p>
+        
+        <p class="reveal delay-200 text-xl md:text-3xl italic text-[var(--secondary)] mb-16 font-light">
+            (Are you tired of being the unseen product in their profit equation?)
+        </p>
+        
+        <p class="reveal delay-300 text-2xl md:text-4xl font-medium leading-relaxed">
+            We believe in a different future. <br/>
+            A place of <span class="text-[var(--heading)] font-bold">focus</span>, <span class="text-[var(--heading)] font-bold">trust</span>, and <span class="text-[var(--heading)] font-bold">true ownership</span> — a place that is <span class="text-[var(--accent)] font-bold">yours</span>.
+        </p>
+    </div>
+</section>
+
+<!-- ========= 2. SANCTUARY (The Solution) ========= -->
+<section id="sanctuary" class="section-screen">
+    <!-- 15/10 Headline Change -->
+    <h2 class="reveal text-4xl md:text-6xl font-bold tracking-tight mb-12 text-center">This is Your Sanctuary.</h2>
+
+    <!-- Artistic Hub SVG -->
+    <div id="hubWrap" class="reveal delay-100 w-full max-w-[400px] mb-16 relative">
+        <!-- SVG Code -->
+        <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto filter drop-shadow-2xl">
+            <defs>
+                <radialGradient id="coreG" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="var(--glow-inner)"/>
+                    <stop offset="70%" stop-color="var(--glow-inner)" stop-opacity="0.1"/>
+                    <stop offset="100%" stop-color="var(--glow-inner)" stop-opacity="0"/>
+                </radialGradient>
+                <linearGradient id="shieldG" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="var(--secondary)" stop-opacity="0.1"/>
+                    <stop offset="50%" stop-color="var(--accent)" stop-opacity="0.2"/>
+                    <stop offset="100%" stop-color="var(--secondary)" stop-opacity="0.1"/>
+                </linearGradient>
+                <filter id="blur" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="6" />
+                </filter>
+            </defs>
+            
+            <!-- Breathing Shield Layers -->
+            <g id="shieldLayers" filter="url(#blur)">
+                <ellipse cx="200" cy="150" rx="140" ry="90" fill="none" stroke="url(#shieldG)" stroke-width="2" />
+                <ellipse cx="200" cy="150" rx="130" ry="80" fill="url(#shieldG)" opacity="0.5" transform="rotate(-5 200 150)" />
+            </g>
+
+            <!-- Pulsing Core -->
+            <g id="hubCoreGlow">
+                <circle cx="200" cy="150" r="40" fill="url(#coreG)" />
+                <circle cx="200" cy="150" r="15" fill="var(--accent)" />
+            </g>
+        </svg>
+    </div>
+
+    <!-- 3 Pillars -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10 w-full max-w-5xl px-4">
+        <div class="reveal delay-200 text-center p-6 rounded-2xl border border-[var(--border)] bg-[var(--surface)]/50 backdrop-blur-sm hover:border-[var(--accent)] transition-colors duration-500 group">
+            <div class="mb-4 text-[var(--secondary)] group-hover:text-[var(--accent)] transition-colors">
+                 <!-- Icon: Key -->
+                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+            </div>
+            <h3 class="text-lg font-bold mb-2">Absolute Control</h3>
+            <p class="text-sm text-[var(--secondary)] leading-relaxed">You hold the only key. Grant access by purpose, and revoke it instantly.</p>
+        </div>
+
+        <div class="reveal delay-300 text-center p-6 rounded-2xl border border-[var(--border)] bg-[var(--surface)]/50 backdrop-blur-sm hover:border-[var(--accent)] transition-colors duration-500 group">
+             <div class="mb-4 text-[var(--secondary)] group-hover:text-[var(--accent)] transition-colors">
+                <!-- Icon: Shield -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+             </div>
+            <h3 class="text-lg font-bold mb-2">Profound Security</h3>
+            <p class="text-sm text-[var(--secondary)] leading-relaxed">Encryption, isolation, and zero-knowledge architecture. Peace of mind by design.</p>
+        </div>
+
+        <div class="reveal delay-400 text-center p-6 rounded-2xl border border-[var(--border)] bg-[var(--surface)]/50 backdrop-blur-sm hover:border-[var(--accent)] transition-colors duration-500 group">
+             <div class="mb-4 text-[var(--secondary)] group-hover:text-[var(--accent)] transition-colors">
+                <!-- Icon: Value -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+             </div>
+            <h3 class="text-lg font-bold mb-2">Recognised Value</h3>
+            <p class="text-sm text-[var(--secondary)] leading-relaxed">Stop being the product. When you share, you define the terms and keep the value.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ========= 3. HORIZON (Future) ========= -->
+<section id="horizon" class="section-screen">
+    <h2 class="reveal text-3xl md:text-5xl font-bold mb-10 text-center">This is Only the Beginning.</h2>
+    
+    <!-- Distilled Body Copy -->
+    <p class="reveal delay-100 text-lg md:text-2xl text-[var(--secondary)] max-w-3xl text-center leading-relaxed mb-12">
+        Your <strong class="text-[var(--heading)]">Sanctuary</strong> evolves with you — unlocking personal insights that truly serve you and pioneering a fairer, more thoughtful digital economy.
+        <br/><br/>
+        Join today to secure your data and help build this future, together.
+    </p>
+    
+    <!-- Pioneer Status Block -->
+    <div class="reveal delay-200 bg-[var(--surface)] border border-[var(--border)] p-8 rounded-2xl max-w-2xl w-full text-center shadow-xl">
+        <p class="text-xl md:text-2xl font-medium">
+            As a <span class="text-[var(--accent)]">Founding Pioneer</span>, you’ll gain early influence, priority access, and <span class="text-[var(--accent)]">Pioneer Points</span>.
+        </p>
+        <p class="text-sm text-[var(--secondary)] mt-2 tracking-wide uppercase">Your stake in the future we're building.</p>
+    </div>
+</section>
+
+<!-- ========= 4. INVITATION (Conversion) ========= -->
+<section id="invitation" class="section-screen">
+    <div id="invitePane" class="w-full max-w-lg relative z-10">
+        
+        <!-- Scarcity Badge (Rory's 20/10 addition) -->
+        <div class="reveal flex justify-center mb-6">
+            <div class="badge-scarcity">
+                <div class="badge-dot"></div>
+                <span>Limited Early Access: Cohort 1</span>
+            </div>
+        </div>
+
+        <h2 class="reveal delay-100 text-4xl md:text-6xl font-bold mb-6 text-center tracking-tight">Step Into Your Sanctuary.</h2>
+        
+        <p class="reveal delay-200 text-xl text-[var(--secondary)] text-center mb-10">
+            Join the Founding Pioneers and reserve your exclusive place. Your journey to digital independence starts now.
+        </p>
+
+        <!-- The Form -->
+        <form id="waitlistForm" class="reveal delay-300 space-y-4" novalidate>
+            <div class="input-group">
+                <input type="email" id="emailInput" placeholder="Enter your email address" required autocomplete="email" />
+            </div>
+            
+            <!-- Trust Microcopy (Cennydd's add) -->
+            <p class="text-xs text-[var(--secondary)] text-center">
+                Only for MyDataHub updates and Founding Circle access. No spam, ever. That's our vow.
+            </p>
+
+            <button type="submit" id="ctaButton" class="btn-primary">
+                Secure My Sanctuary
+            </button>
+            
+            <!-- Justification Nudge (Rory's add) -->
+            <p class="text-xs italic text-[var(--secondary)] text-center mt-2 opacity-80">
+                (Because peace of mind is priceless.)
+            </p>
+        </form>
+
+        <div class="mt-12 text-center text-sm text-[var(--secondary)] reveal delay-500 space-y-2">
+            <p>Crafted with care by a team dedicated to restoring digital dignity.</p>
+            <div class="flex justify-center gap-6 font-medium">
+                <a href="#" class="link">Our Belief</a>
+                <a href="#" class="link">Our Solemn Vow</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUCCESS STATE -->
+    <div id="welcomeMessage" class="hidden w-full max-w-2xl text-center z-10">
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[var(--surface)] border border-[var(--border)] mb-8 shadow-lg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="var(--success)" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>
+        </div>
+        
+        <h2 class="text-5xl md:text-6xl font-bold mb-4 tracking-tight text-[var(--heading)]">Welcome, Pioneer.</h2>
+        <p class="text-2xl text-[var(--secondary)] mb-2">Your place is reserved. We are honoured to have you.</p>
+        
+        <p class="text-lg text-[var(--primary)] mt-6 max-w-lg mx-auto">
+            Your official <strong class="text-[var(--accent)]">Mission Briefing</strong> is on its way — including your invite to our <strong class="text-[var(--accent)]">Founding Circle Community</strong>.
+        </p>
+
+        <!-- The "Treasure" Certificate Button -->
+        <a href="#" class="btn-certificate">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M10.5 3.75a6.75 6.75 0 100 13.5 6.75 6.75 0 000-13.5zM2.25 10.5a8.25 8.25 0 1114.59 5.28l4.69 4.69a.75.75 0 11-1.06 1.06l-4.69-4.69A8.25 8.25 0 012.25 10.5z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M10.5 2.25a8.25 8.25 0 0 1 8.25 8.25c0 2.28-.922 4.342-2.416 5.834l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.226 8.226 0 0 1 10.5 18.75 8.25 8.25 0 0 1 2.25 10.5 8.25 8.25 0 0 1 10.5 2.25zm0 1.5a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5z" clip-rule="evenodd" opacity="0" /></svg> 
+            <!-- Replaced icon with download icon for correctness -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.418a.75.75 0 1 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 1 0-1.09-1.03L10.75 11.364V2.75Z"/><path d="M3.5 14.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 20h10.5A2.75 2.75 0 0 0 18 17.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z"/></svg>
+            Download Your Founding Pioneer Certificate
+        </a>
+    </div>
+</section>
+
+<!-- ========= PACKET ANIMATION ========= -->
+<div id="emailPacket" class="fixed w-3 h-3 rounded-full bg-[var(--accent)] opacity-0 z-[999] pointer-events-none shadow-[0_0_15px_var(--accent)] flex items-center justify-center transition-opacity duration-300"></div>
+
+<!-- ---------------  
+     LOGIC
+--------------- -->
+<script>
+    // 1. Theme Toggle (Persistence & UI)
+    const themeToggle = document.getElementById("themeToggle");
+    const sun = document.getElementById("sunIcon");
+    const moon = document.getElementById("moonIcon");
+    const html = document.documentElement;
+
+    function updateThemeIcon() {
+        const isDark = html.classList.contains("dark");
+        if (isDark) { sun.classList.remove("hidden"); moon.classList.add("hidden"); } 
+        else { sun.classList.add("hidden"); moon.classList.remove("hidden"); }
+    }
+    updateThemeIcon();
+
+    themeToggle.addEventListener("click", () => {
+        html.classList.toggle("dark");
+        updateThemeIcon();
+        localStorage.setItem('theme', html.classList.contains("dark") ? 'dark' : 'light');
+    });
+
+    // 2. Reveal on Scroll (Intersection Observer)
+    const reveals = document.querySelectorAll(".reveal");
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("show");
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.15, rootMargin: "0px 0px -50px 0px" });
+    reveals.forEach(el => revealObserver.observe(el));
+
+    // 3. Mouse Parallax (The "Alive" Background)
+    const starField = document.getElementById("starField");
+    const starContainer = document.getElementById("starFieldContainer");
+    
+    // Init Stars
+    function spawnStars() {
+        const count = 40;
+        for (let i = 0; i < count; i++) {
+            const s = document.createElement("div");
+            const size = Math.random() * 4 + 2;
+            const isAccent = Math.random() > 0.85;
+            s.style.cssText = `
+                position: absolute;
+                width: ${size}px; height: ${size}px;
+                border-radius: 50%;
+                background: ${isAccent ? 'var(--accent)' : 'var(--secondary)'};
+                left: ${Math.random() * 100}%;
+                top: ${Math.random() * 100}%;
+                opacity: ${Math.random() * 0.5 + 0.2};
+                transform: scale(${Math.random()});
+                transition: transform 0.5s ease-out;
+                box-shadow: ${isAccent ? '0 0 10px var(--glow-inner)' : 'none'};
+            `;
+            starField.appendChild(s);
+        }
+    }
+    spawnStars();
+
+    // Parallax Logic
+    document.addEventListener("mousemove", (e) => {
+        const x = (window.innerWidth - e.pageX * 2) / 50; // Slow movement
+        const y = (window.innerHeight - e.pageY * 2) / 50;
+        starField.style.transform = `translate(${x}px, ${y}px)`;
+    });
+
+    // 4. Form Logic & "Secure Transmission" Animation
+    const form = document.getElementById("waitlistForm");
+    const emailInput = document.getElementById("emailInput");
+    const packet = document.getElementById("emailPacket");
+    const invitePane = document.getElementById("invitePane");
+    const welcome = document.getElementById("welcomeMessage");
+    const btn = document.getElementById("ctaButton");
+
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        
+        if (!emailInput.validity.valid) {
+            // Simple shake effect for error
+            form.classList.add('translate-x-2');
+            setTimeout(() => form.classList.remove('translate-x-2'), 100);
+            setTimeout(() => form.classList.add('-translate-x-2'), 200);
+            setTimeout(() => form.classList.remove('-translate-x-2'), 300);
+            emailInput.focus();
+            return;
+        }
+
+        // Lock Interface
+        btn.disabled = true;
+        btn.textContent = "Securing...";
+        emailInput.disabled = true;
+
+        // Start Animation
+        const startRect = emailInput.getBoundingClientRect();
+        
+        // We want to fly to the Hub in the Sanctuary section (visual metaphor)
+        // But since that's off screen, we'll fly UP towards the top/center
+        const targetX = window.innerWidth / 2;
+        const targetY = -50; // Fly off screen top
+
+        // Init Packet
+        packet.style.left = `${startRect.left + startRect.width / 2}px`;
+        packet.style.top = `${startRect.top + startRect.height / 2}px`;
+        packet.style.opacity = '1';
+
+        // Animate
+        setTimeout(() => {
+            packet.style.transition = "all 0.8s cubic-bezier(0.7, 0, 0.3, 1)";
+            packet.style.left = `${targetX}px`;
+            packet.style.top = `${targetY}px`;
+            packet.style.transform = "scale(0.5)";
+        }, 50);
+
+        // Show Success
+        setTimeout(() => {
+            packet.style.opacity = '0';
+            invitePane.style.opacity = '0';
+            invitePane.style.transform = 'translateY(-20px)';
+            invitePane.style.transition = 'all 0.5s ease';
+            
+            setTimeout(() => {
+                invitePane.classList.add("hidden");
+                welcome.classList.remove("hidden");
+                // Trigger reveal animation for welcome
+                welcome.classList.add("reveal");
+                setTimeout(() => welcome.classList.add("show"), 50);
+            }, 500);
+        }, 900);
+    });
+</script>
+</body>
+</html>

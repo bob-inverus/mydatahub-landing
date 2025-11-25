@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
-import { TextLoop } from "@/components/ui/text-loop";
 import { APP_AUTH_URL } from "@/lib/config";
 
 import { Loader } from "@/components/prompt-kit/loader";
@@ -13,30 +12,14 @@ import {
   MessageActions,
   MessageContent,
 } from "@/components/prompt-kit/message";
-import {
-  PromptInput,
-  PromptInputAction,
-  PromptInputActions,
-  PromptInputTextarea,
-} from "@/components/prompt-kit/prompt-input";
 import { Button } from "@/components/ui/button";
-import { LogoCarousel } from "@/components/ui/logo-carousel";
 import { cn } from "@/lib/utils";
 import {
-  ArrowUp,
   Copy,
-  Globe,
-  Mic,
-  MoreHorizontal,
-  Plus,
   ThumbsUp,
   Trash,
   Pencil,
-  Users,
-  Shield,
-  Eye,
   ChevronDown,
-  ChevronRight,
   Share,
   RotateCcw,
 } from "lucide-react";
@@ -193,40 +176,13 @@ interface ChatMessage {
 }
 
 export function ChatLandingWindow() {
-  const [prompt, setPrompt] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [ctaShown, setCtaShown] = useState(false);
   const [showScrollArrow, setShowScrollArrow] = useState(true);
   const [currentSection, setCurrentSection] = useState(1);
-  const [currentPlaceholderIndex, setCurrentPlaceholderIndex] = useState(0);
   const [feedback, setFeedback] = useState<"good" | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const sectionChangeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Placeholder texts (shared by both inputs)
-  const placeholders = [
-    "Ask InVerus to verify someone...",
-    'Try "Jasmine Kaur" or "Elon Musk"',
-    "Curious how someone shows up online?",
-    "Run a sample Trust Score.",
-    "What's their digital signal say?",
-    "Don't guess. Check the signal.",
-    "Verify this person's identity",
-    "Check their online presence",
-    "What's their trust rating?",
-    "Run identity verification",
-    "Analyze digital footprint",
-    "Verify social media profiles",
-    "Check professional background",
-    "Validate online credentials",
-    "Assess digital reputation",
-    "Verify business identity",
-    "Check public records",
-    "Analyze trust signals",
-    "Validate online activity",
-    "Check identity authenticity",
-  ];
 
   // Mobile detection
   useEffect(() => {
@@ -240,8 +196,168 @@ export function ChatLandingWindow() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Track current index if needed
-  useEffect(() => {}, []);
+  // Particle field with mouse parallax and orbital animation
+  useEffect(() => {
+    const particleField = document.getElementById('particleField');
+    if (!particleField) return;
+
+    const particles: HTMLDivElement[] = [];
+
+    // Create particles
+    const createParticles = () => {
+      const count = 800; // More particles for denser field
+      particleField.innerHTML = ''; // Clear existing particles
+
+      for (let i = 0; i < count; i++) {
+        const particle = document.createElement('div');
+        const size = Math.random() * 6 + 3; // 3-9px (bigger)
+        const isBlue = Math.random() > 0.5; // 50% blue, 50% grey
+        
+        particle.style.cssText = `
+          position: absolute;
+          width: ${size}px;
+          height: ${size}px;
+          border-radius: 50%;
+          background: ${isBlue ? 'rgb(59, 130, 246)' : 'rgb(156, 163, 175)'};
+          left: ${Math.random() * 100}%;
+          top: ${Math.random() * 100}%;
+          opacity: ${Math.random() * 0.5 + 0.2};
+          transform: scale(${Math.random()});
+          transition: transform 0.5s ease-out, left 1.5s cubic-bezier(0.16, 1, 0.3, 1), top 1.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 1.5s ease-out;
+          box-shadow: ${isBlue ? '0 0 12px rgba(59, 130, 246, 0.8)' : 'none'};
+        `;
+        
+        particleField.appendChild(particle);
+        particles.push(particle);
+      }
+    };
+
+    createParticles();
+
+    // Mouse parallax effect
+    let mouseParallaxEnabled = true;
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!mouseParallaxEnabled) return;
+      const x = (window.innerWidth - e.pageX * 2) / 50;
+      const y = (window.innerHeight - e.pageY * 2) / 50;
+      particleField.style.transform = `translate(${x}px, ${y}px)`;
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+
+    // Scroll-triggered orbital animation
+    const handleScroll = () => {
+      const architectureSection = document.getElementById('architecture-section');
+      const orbitalSystem = document.getElementById('orbitalSystem');
+      const orbitingParticlesGroup = document.getElementById('orbitingParticles');
+      const hubCore = document.getElementById('hubCore');
+      const shieldLayers = document.getElementById('shieldLayers');
+      
+      if (!architectureSection || !orbitalSystem || !orbitingParticlesGroup) return;
+
+      const rect = architectureSection.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      
+      // Calculate scroll progress through the section (0 to 1)
+      const scrollProgress = Math.max(0, Math.min(1, 
+        (windowHeight - rect.top) / (windowHeight + rect.height)
+      ));
+
+      // When section comes into view (scrollProgress > 0.3)
+      if (scrollProgress > 0.3) {
+        mouseParallaxEnabled = false;
+        particleField.style.transform = 'translate(0, 0)';
+        
+        // Show orbital system
+        orbitalSystem.style.opacity = '1';
+        
+        // Animate particles to orbit
+        const particleSubset = particles.filter((_, i) => i % 4 === 0); // Take every 4th particle for performance
+        particleSubset.forEach((particle, index) => {
+          const angle = (index / particleSubset.length) * Math.PI * 2;
+          const radius = 50; // percentage from center
+          const centerX = 50; // center of viewport
+          const centerY = 50;
+          
+          const targetX = centerX + Math.cos(angle) * radius;
+          const targetY = centerY + Math.sin(angle) * radius;
+          
+          setTimeout(() => {
+            particle.style.left = `${targetX}%`;
+            particle.style.top = `${targetY}%`;
+            particle.style.opacity = '0.8';
+          }, index * 3); // Stagger the animation
+        });
+
+        // Create orbiting particles in SVG
+        if (orbitingParticlesGroup && orbitingParticlesGroup.children.length === 0) {
+          for (let i = 0; i < 60; i++) {
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            const angle = (i / 60) * Math.PI * 2;
+            const radius = 150 + Math.random() * 50;
+            const cx = 300 + Math.cos(angle) * radius;
+            const cy = 300 + Math.sin(angle) * radius;
+            const size = Math.random() * 3 + 2;
+            const isBlue = Math.random() > 0.5;
+            
+            circle.setAttribute('cx', cx.toString());
+            circle.setAttribute('cy', cy.toString());
+            circle.setAttribute('r', size.toString());
+            circle.setAttribute('fill', isBlue ? 'rgb(59, 130, 246)' : 'rgb(156, 163, 175)');
+            circle.setAttribute('opacity', (Math.random() * 0.5 + 0.3).toString());
+            
+            // Add rotation animation
+            const animateTransform = document.createElementNS('http://www.w3.org/2000/svg', 'animateTransform');
+            animateTransform.setAttribute('attributeName', 'transform');
+            animateTransform.setAttribute('type', 'rotate');
+            animateTransform.setAttribute('from', `0 300 300`);
+            animateTransform.setAttribute('to', `360 300 300`);
+            animateTransform.setAttribute('dur', `${20 + Math.random() * 20}s`);
+            animateTransform.setAttribute('repeatCount', 'indefinite');
+            
+            circle.appendChild(animateTransform);
+            orbitingParticlesGroup.appendChild(circle);
+          }
+        }
+
+        // Animate core pulsing
+        if (hubCore) {
+          hubCore.style.animation = 'pulse 4s ease-in-out infinite alternate';
+        }
+        
+        // Animate shield breathing
+        if (shieldLayers) {
+          shieldLayers.style.animation = 'breathe 7s ease-in-out infinite alternate';
+        }
+      } else {
+        mouseParallaxEnabled = true;
+        orbitalSystem.style.opacity = '0';
+      }
+    };
+
+    // Add CSS animations
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes pulse {
+        0% { opacity: 0.8; transform: scale(0.95); }
+        100% { opacity: 1; transform: scale(1.05); }
+      }
+      @keyframes breathe {
+        0% { transform: scale(1) rotate(0deg); opacity: 0.6; }
+        100% { transform: scale(1.02) rotate(2deg); opacity: 0.9; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // Initial check
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('scroll', handleScroll);
+      document.head.removeChild(style);
+    };
+  }, []);
 
   // Handle section detection using Intersection Observer
   useEffect(() => {
@@ -432,73 +548,6 @@ export function ChatLandingWindow() {
     scrollToSectionById(targetId);
   };
 
-  const generateMockResult = (query: string) => {
-    // Extract name from query or use the actual query
-    const nameMatch = query.match(/([A-Z][a-z]+ [A-Z][a-z]+)/);
-    const name = nameMatch ? nameMatch[1] : query.trim();
-
-    // Generate realistic Online Trust Score
-    const digitalIdentityScore = Math.floor(Math.random() * 40) + 60; // 60-100
-
-    return { name, digitalIdentityScore };
-  };
-
-  const runDemo = async (query: string) => {
-    if (isLoading) return;
-
-    setIsLoading(true);
-
-    // Add user message
-    const userMessage: ChatMessage = {
-      id: Date.now(),
-      role: "user",
-      content: query,
-    };
-    setMessages((prev) => [...prev, userMessage]);
-
-    // Add simple loading message with dots animation
-    const loadingId = Date.now() + 1;
-    const loadingMessage: ChatMessage = {
-      id: loadingId,
-      content: "",
-      role: "loading",
-      isTyping: true,
-    };
-
-    setMessages((prev) => [...prev, loadingMessage]);
-
-    // Wait for 2-3 seconds to simulate processing
-    await new Promise((resolve) => setTimeout(resolve, 2500));
-
-    // Remove loading message and show result
-    setMessages((prev) => prev.filter((msg) => msg.id !== loadingId));
-
-    const result = generateMockResult(query);
-    const resultMessage: ChatMessage = {
-      id: Date.now() + 2,
-      role: "assistant",
-      content: ``,
-      query: query,
-      digitalIdentityScore: result.digitalIdentityScore,
-      showCTA: !ctaShown,
-    };
-
-    setMessages((prev) => [...prev, resultMessage]);
-    setIsLoading(false);
-
-    if (!ctaShown) {
-      setCtaShown(true);
-    }
-  };
-
-  const handleSubmit = () => {
-    if (!prompt.trim() || isLoading) return;
-
-    const query = prompt.trim();
-    setPrompt("");
-    runDemo(query);
-  };
-
   const handleShare = async () => {
     try {
       if (navigator.share) {
@@ -547,76 +596,44 @@ export function ChatLandingWindow() {
             {messages.length === 0 ? (
               /* Empty state - centered layout */
               <div className="flex flex-1 items-center justify-center flex-col">
-                <div className="text-center mb-8">
+                <div className="text-center">
+                  {/* Logo Mark - inVerus Logo (Placeholder) */}
+                  <div className="flex justify-center mb-6">
+                    <svg
+                      width="80"
+                      height="80"
+                      viewBox="0 0 50 50"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <rect width="50" height="50" rx="15" fill="#006DED" />
+                      <path
+                        fillRule="evenodd"
+                        clipRule="evenodd"
+                        d="M23.7366 6.15368C23.9778 6.05228 24.2376 6 24.5 6C24.7624 6 25.0222 6.05228 25.2634 6.15368L37.6518 11.3612C38.3489 11.6542 38.9431 12.1415 39.3605 12.7626C39.7779 13.3836 40.0003 14.1112 40 14.855V27.888C39.9998 30.2322 39.3676 32.5348 38.1675 34.5623C36.9675 36.5898 35.2422 38.2703 33.1664 39.4334L25.461 43.7498C25.1683 43.9138 24.8371 44 24.5 44C24.1629 44 23.8317 43.9138 23.539 43.7498L15.8336 39.4334C13.7573 38.27 12.0316 36.5889 10.8315 34.5607C9.6314 32.5324 8.99955 30.2291 9 27.8842V14.855C9.00008 14.1115 9.22261 13.3844 9.64002 12.7637C10.0574 12.143 10.6514 11.656 11.3482 11.3631L23.7366 6.15368ZM31.6823 22.5437C32.0352 22.1854 32.2305 21.7055 32.2261 21.2073C32.2217 20.7092 32.0179 20.2327 31.6587 19.8804C31.2995 19.5282 30.8135 19.3284 30.3055 19.3241C29.7975 19.3197 29.3081 19.5112 28.9427 19.8573L22.5625 26.1135L20.0573 23.657C19.6919 23.3109 19.2025 23.1194 18.6945 23.1238C18.1865 23.1281 17.7005 23.3279 17.3413 23.6802C16.9821 24.0324 16.7783 24.5089 16.7739 25.007C16.7695 25.5052 16.9648 25.9851 17.3177 26.3434L21.1927 30.1431C21.556 30.4993 22.0487 30.6994 22.5625 30.6994C23.0763 30.6994 23.569 30.4993 23.9323 30.1431L31.6823 22.5437Z"
+                        fill="white"
+                      />
+                    </svg>
+                  </div>
+                  
+                  {/* Logo Mark - MyDataHub */}
+                  <div className="flex justify-center mb-6">
+                    <div className="text-lg font-medium tracking-wide uppercase text-gray-500 dark:text-gray-400">
+                      MyDataHub
+                    </div>
+                  </div>
+                  
                   {/* Header */}
-                  <h1 className="text-2xl md:text-3xl lg:text-4xl tracking-tighter leading-tight max-w-4xl text-gray-900 dark:text-gray-100 text-balance mb-6">
-                    Know Who's Real
+                  <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tighter leading-tight max-w-4xl text-gray-900 dark:text-gray-100 text-balance mb-6">
+                    Your Data.<br />Your Sanctuary.
                   </h1>
 
                   {/* Subtitle */}
                   <div className="mb-4 md:mb-8">
-                    <p className="text-gray-600 dark:text-gray-400 max-w-3xl text-lg">
-                      The Trust Layer for the Internet
+                    <p className="text-gray-600 dark:text-gray-400 max-w-3xl text-xl md:text-2xl">
+                      It's time for clarity. It's time for control.
                     </p>
                   </div>
-                </div>
-
-                {/* Centered Input for Empty State */}
-                <div className="w-full max-w-2xl px-4">
-                  <PromptInput
-                    isLoading={isLoading}
-                    value={prompt}
-                    onValueChange={setPrompt}
-                    onSubmit={handleSubmit}
-                    className="border-input bg-popover relative z-10 w-full rounded-3xl border p-0 pt-1 shadow-xs"
-                  >
-                    <div className="flex flex-col">
-                      {/* ChatGPT-style animated placeholder - hide when typing */}
-                      {!prompt.trim() && (
-                        <div className="pointer-events-none absolute left-0 top-0 w-full select-none px-4 pt-4 text-gray-500 dark:text-gray-400 h-6">
-                          <TextLoop
-                            interval={3}
-                            className="h-6 leading-6 align-middle"
-                          >
-                            {placeholders.map((text) => (
-                              <span
-                                key={text}
-                                className="block h-6 overflow-hidden text-ellipsis whitespace-nowrap"
-                              >
-                                {text}
-                              </span>
-                            ))}
-                          </TextLoop>
-                        </div>
-                      )}
-
-                      <PromptInputTextarea
-                        placeholder=""
-                        className="min-h-[44px] pt-3 pl-4 text-base leading-[1.3] sm:text-base md:text-base bg-transparent resize-none"
-                      />
-
-                      <PromptInputActions className="mt-2 flex w-full items-center justify-end gap-2 px-3 pb-3">
-                        <div className="flex items-center gap-2">
-                          <Button
-                            size="icon"
-                            disabled={isLoading}
-                            onClick={handleSubmit}
-                            className={`size-9 rounded-full transition-colors duration-200 ${
-                              prompt.trim()
-                                ? "bg-blue-600 hover:bg-blue-700 text-white"
-                                : "bg-gray-200 hover:bg-gray-300 text-gray-400 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-500"
-                            }`}
-                          >
-                            {!isLoading ? (
-                              <ArrowUp size={18} />
-                            ) : (
-                              <span className="size-3 rounded-xs bg-white" />
-                            )}
-                          </Button>
-                        </div>
-                      </PromptInputActions>
-                    </div>
-                  </PromptInput>
                 </div>
               </div>
             ) : (
@@ -850,429 +867,226 @@ export function ChatLandingWindow() {
                   </div>
                 </div>
 
-                {/* Bottom Input for Chat State - Hide when results are shown */}
-                {messages.length === 0 && (
-                  <div className="shrink-0 px-3 pb-3">
-                    <PromptInput
-                      isLoading={isLoading}
-                      value={prompt}
-                      onValueChange={setPrompt}
-                      onSubmit={handleSubmit}
-                      className="border-input bg-popover relative z-10 w-full rounded-3xl border p-0 pt-1 shadow-xs"
-                    >
-                      <div className="flex flex-col">
-                        {/* ChatGPT-style animated placeholder - hide when typing */}
-                        {!prompt.trim() && (
-                          <div className="pointer-events-none absolute left-0 top-0 w-full select-none px-4 pt-4 text-gray-500 dark:text-gray-400 h-6">
-                            <TextLoop
-                              interval={3}
-                              className="h-6 leading-6 align-middle"
-                            >
-                              {placeholders.map((text) => (
-                                <span
-                                  key={text}
-                                  className="block h-6 overflow-hidden text-ellipsis whitespace-nowrap"
-                                >
-                                  {text}
-                                </span>
-                              ))}
-                            </TextLoop>
-                          </div>
-                        )}
-
-                        <PromptInputTextarea
-                          placeholder=""
-                          className="min-h-[44px] pt-3 pl-4 text-base leading-[1.3] sm:text-base md:text-base bg-transparent resize-none"
-                        />
-
-                        <PromptInputActions className="mt-2 flex w-full items-center justify-end gap-2 px-3 pb-3">
-                          <div className="flex items-center gap-2">
-                            <Button
-                              size="icon"
-                              disabled={isLoading}
-                              onClick={handleSubmit}
-                              className={`size-9 rounded-full transition-colors duration-200 ${
-                                prompt.trim()
-                                  ? "bg-blue-600 hover:bg-blue-700 text-white"
-                                  : "bg-gray-200 hover:bg-gray-300 text-gray-400 dark:bg-gray-700 dark:hover:bg-gray-200 dark:text-gray-500"
-                              }`}
-                            >
-                              {!isLoading ? (
-                                <ArrowUp size={18} />
-                              ) : (
-                                <span className="size-3 rounded-xs bg-white" />
-                              )}
-                            </Button>
-                          </div>
-                        </PromptInputActions>
-                      </div>
-                    </PromptInput>
-                  </div>
-                )}
               </>
             )}
           </div>
         </div>
       </section>
 
-      {/* Section 2: Trust Protocol */}
+      {/* Section 2: Awakening (The Problem) */}
       <section
         id="trust-protocol-section"
-        className="flex flex-col items-center justify-center min-h-[calc(100svh-2rem)] md:min-h-screen w-full px-4 py-12 md:py-16"
+        className="relative flex flex-col items-center justify-center min-h-[calc(100svh-2rem)] md:min-h-screen w-full px-4 py-12 md:py-16 overflow-hidden"
       >
-        <div className="w-full max-w-6xl mx-auto">
-          <div className="grid w-full grid-cols-1 items-stretch gap-8">
-            <div className="grid w-full grid-cols-1 max-w-4xl mx-auto">
-              <div className="flex flex-col items-center text-center">
-                <h1 className="text-2xl md:text-3xl lg:text-4xl tracking-tighter leading-tight max-w-4xl text-gray-900 dark:text-gray-100 text-balance mb-6">
-                  The inVerus Protocol
-                </h1>
-                <div className="mb-4 md:mb-8">
-                  <p className="text-gray-600 dark:text-gray-400 max-w-4xl text-lg">
-                    We don't just build apps. We build the architecture that
-                    makes a trusted digital world possible.
-                  </p>
-                </div>
-              </div>
-            </div>
+        {/* Particle Background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+          <div 
+            id="particleField" 
+            className="w-full h-full"
+            style={{ 
+              transition: 'transform 0.1s linear',
+              willChange: 'transform'
+            }}
+          />
+        </div>
 
-            <div className="w-full">
-              <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-4">
-                {/* Trust Layer Card */}
-                <div className="border border-gray-200 dark:border-gray-700 p-6 mb-4 md:mb-0 group relative w-full rounded-md last:mb-0">
-                  <div className="h-full w-full">
-                    <div className="flex h-full w-full flex-col">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-9 h-9">
-                          <div className="relative h-full w-full rounded-md flex items-center justify-center">
-                            <Shield
-                              size={24}
-                              className="text-gray-700 dark:text-gray-300"
-                            />
-                          </div>
-                        </div>
-                        <h4 className="text-xl md:text-2xl tracking-tighter leading-tight text-gray-900 dark:text-gray-100">
-                          Trust Layer
-                        </h4>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          The root layer of trust on the internet — proving
-                          who’s real and what’s real as the web evolves.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+        {/* Content */}
+        <div className="relative z-10 max-w-3xl mx-auto text-center space-y-16">
+          {/* First paragraph */}
+          <motion.p 
+            initial={{ opacity: 0, y: 30, scale: 0.98 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            viewport={{ once: true, margin: "-100px" }}
+            className="text-2xl md:text-4xl leading-normal font-light text-gray-900 dark:text-gray-100"
+          >
+            Your digital life: scattered, exposed, a story written by others. What they call "connection" often feels like exploitation.{" "}
+            <br />
+            <span className="text-gray-500 dark:text-gray-400">
+              It wasn't meant to be this way.
+            </span>
+          </motion.p>
 
-                {/* Sovereignty Layer Card */}
-                <div className="border border-gray-200 dark:border-gray-700 p-6 mb-4 md:mb-0 group relative w-full rounded-md last:mb-0">
-                  <div className="h-full w-full">
-                    <div className="flex h-full w-full flex-col">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-9 h-9">
-                          <div className="relative h-full w-full rounded-md flex items-center justify-center">
-                            <Users
-                              size={24}
-                              className="text-gray-700 dark:text-gray-300"
-                            />
-                          </div>
-                        </div>
-                        <h4 className="text-xl md:text-2xl tracking-tighter leading-tight text-gray-900 dark:text-gray-100">
-                          Sovereignty Layer
-                        </h4>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Built on a core belief in digital sovereignty. Explore
-                          our philosophy of user-centric control.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+          {/* Second paragraph */}
+          <motion.p
+            initial={{ opacity: 0, y: 30, scale: 0.98 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+            viewport={{ once: true, margin: "-100px" }}
+            className="text-xl md:text-3xl italic text-gray-500 dark:text-gray-400 font-light"
+          >
+            (Are you tired of being the unseen product in their profit equation?)
+          </motion.p>
 
-                {/* Agency Layer Card */}
-                <div className="border border-gray-200 dark:border-gray-700 p-6 mb-4 md:mb-0 group relative w-full rounded-md last:mb-0">
-                  <div className="h-full w-full">
-                    <div className="flex h-full w-full flex-col">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-9 h-9">
-                          <div className="relative h-full w-full rounded-md flex items-center justify-center">
-                            <Eye
-                              size={24}
-                              className="text-gray-700 dark:text-gray-300"
-                            />
-                          </div>
-                        </div>
-                        <h4 className="text-xl md:text-2xl tracking-tighter leading-tight text-gray-900 dark:text-gray-100">
-                          Agency Layer
-                        </h4>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Unleash powerful AI assistants that act on your
-                          behalf, using your own verified data.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Exchange Layer Card */}
-                <div className="border border-gray-200 dark:border-gray-700 p-6 mb-4 md:mb-0 group relative w-full rounded-md last:mb-0">
-                  <div className="h-full w-full">
-                    <div className="flex h-full w-full flex-col">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-9 h-9">
-                          <div className="relative h-full w-full rounded-md flex items-center justify-center">
-                            <Globe
-                              size={24}
-                              className="text-gray-700 dark:text-gray-300"
-                            />
-                          </div>
-                        </div>
-                        <h4 className="text-xl md:text-2xl tracking-tighter leading-tight text-gray-900 dark:text-gray-100">
-                          Exchange Layer
-                        </h4>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Unlock the value of verified data in a new marketplace
-                          for trusted, permission-based exchange.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* Third paragraph */}
+          <motion.p
+            initial={{ opacity: 0, y: 30, scale: 0.98 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
+            viewport={{ once: true, margin: "-100px" }}
+            className="text-2xl md:text-4xl font-medium leading-relaxed text-gray-900 dark:text-gray-100"
+          >
+            We believe in a different future.
+            <br />
+            A place of{" "}
+            <span className="font-bold">focus</span>,{" "}
+            <span className="font-bold">trust</span>, and{" "}
+            <span className="font-bold">true ownership</span> — a place that is{" "}
+            <span className="text-blue-500 dark:text-blue-400 font-bold">yours</span>.
+          </motion.p>
         </div>
       </section>
 
-      {/* Section 3: Architecture of Trust */}
+      {/* Section 3: Sanctuary (The Solution) */}
       <section
         id="architecture-section"
-        className="flex flex-col items-center justify-center min-h-[calc(100svh-2rem)] md:min-h-screen w-full px-4 py-12 md:py-16"
+        className="relative flex flex-col items-center justify-center min-h-[calc(100svh-2rem)] md:min-h-screen w-full px-4 py-12 md:py-16 overflow-hidden"
       >
-        <div className="w-full max-w-6xl mx-auto">
-          <div className="relative w-full">
-            {/* Header Section */}
-            <div className="flex flex-col items-center text-center mb-6 md:mb-12">
-              <h1 className="text-2xl md:text-3xl lg:text-4xl tracking-tighter leading-tight max-w-4xl text-gray-900 dark:text-gray-100 text-balance mb-6">
-                An Architecture of Trust
-              </h1>
-              <div className="mb-4 md:mb-8">
-                <p className="text-gray-600 dark:text-gray-400 max-w-4xl text-lg">
-                  Our advantage isn't a single feature, but a deeply integrated
-                  system designed for enduring&nbsp;value.
-                </p>
+        {/* Orbital Particle System */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+          <svg 
+            id="orbitalSystem"
+            className="w-full h-full max-w-[600px] max-h-[600px] opacity-0 transition-opacity duration-1000"
+            viewBox="0 0 600 600" 
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <defs>
+              <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="rgb(59, 130, 246)" stopOpacity="0.8"/>
+                <stop offset="70%" stopColor="rgb(59, 130, 246)" stopOpacity="0.1"/>
+                <stop offset="100%" stopColor="rgb(59, 130, 246)" stopOpacity="0"/>
+              </radialGradient>
+              <linearGradient id="shieldGradient" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="rgb(156, 163, 175)" stopOpacity="0.1"/>
+                <stop offset="50%" stopColor="rgb(59, 130, 246)" stopOpacity="0.2"/>
+                <stop offset="100%" stopColor="rgb(156, 163, 175)" stopOpacity="0.1"/>
+              </linearGradient>
+              <filter id="blur" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="6" />
+              </filter>
+            </defs>
+            
+            {/* Breathing Shield Layers */}
+            <g id="shieldLayers" filter="url(#blur)">
+              <ellipse cx="300" cy="300" rx="210" ry="135" fill="none" stroke="url(#shieldGradient)" strokeWidth="2" />
+              <ellipse cx="300" cy="300" rx="195" ry="120" fill="url(#shieldGradient)" opacity="0.5" transform="rotate(-5 300 300)" />
+            </g>
+
+            {/* Pulsing Core */}
+            <g id="hubCore">
+              <circle cx="300" cy="300" r="60" fill="url(#coreGlow)" />
+              <circle cx="300" cy="300" r="22" fill="rgb(59, 130, 246)" />
+            </g>
+            
+            {/* Orbiting Particles */}
+            <g id="orbitingParticles"></g>
+          </svg>
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10 w-full max-w-5xl mx-auto">
+          {/* Header */}
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            viewport={{ once: true, margin: "-100px" }}
+            className="text-4xl md:text-6xl font-bold tracking-tight mb-12 text-center text-gray-900 dark:text-gray-100"
+          >
+            This is Your Sanctuary.
+          </motion.h2>
+
+          {/* 3 Pillars */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 w-full px-4">
+            {/* Absolute Control */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+              viewport={{ once: true, margin: "-100px" }}
+              className="text-center p-6 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-500 group"
+            >
+              <div className="mb-4 text-gray-500 dark:text-gray-400 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors flex justify-center">
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  width="32" 
+                  height="32" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="1.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                </svg>
               </div>
-            </div>
+              <h3 className="text-lg font-bold mb-2 text-gray-900 dark:text-gray-100">Absolute Control</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                You hold the only key. Grant access by purpose, and revoke it instantly.
+              </p>
+            </motion.div>
 
-            {/* Trust Architecture Points */}
-            <div className="w-full max-w-6xl mx-auto">
-              <div className="grid w-full grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
-                {/* Deep Patent Portfolio */}
-                <div className="p-6 mb-4 md:mb-0 group relative w-full rounded-md last:mb-0">
-                  <div className="h-full w-full">
-                    <div className="flex h-full w-full flex-col">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-9 h-9">
-                          <div className="relative h-full w-full rounded-md flex items-center justify-center">
-                            <svg
-                              width="24"
-                              height="24"
-                              viewBox="0 0 64 64"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="text-gray-700 dark:text-gray-300"
-                            >
-                              <g transform="translate(-6.5, 0)">
-                                <path
-                                  d="M10.6667 32C10.6667 24.1033 14.9567 17.21 21.33 13.5233C23.18 12.45 25.21 11.65 27.36 11.1733M15.4701 45.4901C17.1001 47.4834 19.0867 49.1801 21.3301 50.4767C24.4667 52.2934 28.1134 53.3334 32.0001 53.3334C35.8867 53.3334 39.5334 52.2934 42.6701 50.4767M51.7859 39.9833C52.7859 37.5199 53.3326 34.8233 53.3326 31.9999C53.3326 24.1033 49.0426 17.2099 42.6693 13.5233M36.6667 10.6667C36.6667 13.244 34.5773 15.3333 32 15.3333C29.4227 15.3333 27.3333 13.244 27.3333 10.6667C27.3333 8.08934 29.4227 6 32 6C34.5773 6 36.6667 8.08934 36.6667 10.6667ZM54.6667 44.2967C54.6667 46.874 52.5773 48.9634 50 48.9634C47.4227 48.9634 45.3333 46.874 45.3333 44.2967C45.3333 41.7194 47.4227 39.63 50 39.63C52.5773 39.63 54.6667 41.7194 54.6667 44.2967ZM17.0365 42C17.0365 44.5773 14.9471 46.6667 12.3698 46.6667C9.79246 46.6667 7.70312 44.5773 7.70312 42C7.70312 39.4227 9.79246 37.3333 12.3698 37.3333C14.9471 37.3333 17.0365 39.4227 17.0365 42ZM42.6667 32C42.6667 37.891 37.891 42.6667 32 42.6667C26.109 42.6667 21.3333 37.891 21.3333 32C21.3333 26.109 26.109 21.3333 32 21.3333C37.891 21.3333 42.6667 26.109 42.6667 32Z"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                />
-                              </g>
-                            </svg>
-                          </div>
-                        </div>
-                        <h4 className="text-xl md:text-2xl tracking-tighter leading-tight text-gray-900 dark:text-gray-100">
-                          Deep Patent Portfolio
-                        </h4>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Fundamental patents cover our core protocol, data
-                          structures, and agent behavior, creating a defensible
-                          technological foundation.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Composable Protocol Stack */}
-                <div className="p-6 mb-4 md:mb-0 group relative w-full rounded-md last:mb-0">
-                  <div className="h-full w-full">
-                    <div className="flex h-full w-full flex-col">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-9 h-9">
-                          <div className="relative h-full w-full rounded-md flex items-center justify-center">
-                            <svg
-                              width="24"
-                              height="24"
-                              viewBox="0 0 64 64"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="text-gray-700 dark:text-gray-300"
-                            >
-                              <g transform="translate(-2, 0)">
-                                <path
-                                  d="M39 37.2633C39 37.8156 39.4477 38.2633 40 38.2633C40.5523 38.2633 41 37.8156 41 37.2633H39ZM52.3333 37.2633C52.3333 37.8156 52.781 38.2633 53.3333 38.2633C53.8856 38.2633 54.3333 37.8156 54.3333 37.2633H52.3333ZM33.3333 50.3333H34.3333V48.3333H33.3333V50.3333ZM4 42.6667V41.6667C3.44772 41.6667 3 42.1144 3 42.6667H4ZM34.6667 43.6667H35.6667V41.6667H34.6667V43.6667ZM33.3333 43.6667H34.3333V41.6667H33.3333V43.6667ZM9.33333 42.6667H8.33333C8.33333 43.2189 8.78105 43.6667 9.33333 43.6667V42.6667ZM53.6667 24V25H55.6667V24H53.6667ZM25 43V42C24.4477 42 24 42.4477 24 43H25ZM34.6562 43H35.6562C35.6562 42.4477 35.2085 42 34.6562 42V43ZM34.6562 46V47C35.2085 47 35.6562 46.5523 35.6562 46H34.6562ZM25 46H24C24 46.5523 24.4477 47 25 47V46ZM37.3337 38.3333H56.0003V36.3333H37.3337V38.3333ZM56.0003 38.3333C56.9208 38.3333 57.667 39.0795 57.667 40H59.667C59.667 37.975 58.0254 36.3333 56.0003 36.3333V38.3333ZM57.667 40V54.6667H59.667V40H57.667ZM57.667 54.6667C57.667 55.5872 56.9208 56.3333 56.0003 56.3333V58.3333C58.0254 58.3333 59.667 56.6917 59.667 54.6667H57.667ZM56.0003 56.3333H37.3337V58.3333H56.0003V56.3333ZM37.3337 56.3333C36.4132 56.3333 35.667 55.5872 35.667 54.6667H33.667C33.667 56.6917 35.3086 58.3333 37.3337 58.3333V56.3333ZM35.667 54.6667V40H33.667V54.6667H35.667ZM35.667 40C35.667 39.0795 36.4132 38.3333 37.3337 38.3333V36.3333C35.3086 36.3333 33.667 37.975 33.667 40H35.667ZM41 37.2633V34.5967H39V37.2633H41ZM41 34.5967C41 31.4656 43.5356 28.93 46.6667 28.93V26.93C42.4311 26.93 39 30.361 39 34.5967H41ZM46.6667 28.93C49.7977 28.93 52.3333 31.4656 52.3333 34.5967H54.3333C54.3333 30.3611 50.9023 26.93 46.6667 26.93V28.93ZM52.3333 34.5967V37.2633H54.3333V34.5967H52.3333ZM33.3333 48.3333H6.66667V50.3333H33.3333V48.3333ZM6.66667 48.3333C5.9426 48.3333 5 47.5078 5 46H3C3 48.1722 4.44407 50.3333 6.66667 50.3333V48.3333ZM5 46V42.6667H3V46H5ZM4 43.6667H34.6667V41.6667H4V43.6667ZM33.3333 41.6667H9.33333V43.6667H33.3333V41.6667ZM10.3333 42.6667V9.33332H8.33333V42.6667H10.3333ZM10.3333 9.33332C10.3333 8.41227 11.079 7.66666 12 7.66666V5.66666C9.97438 5.66666 8.33333 7.30771 8.33333 9.33332H10.3333ZM12 7.66666H52V5.66666H12V7.66666ZM52 7.66666C52.921 7.66666 53.6667 8.41228 53.6667 9.33332H55.6667C55.6667 7.3077 54.0256 5.66666 52 5.66666V7.66666ZM53.6667 9.33332V24H55.6667V9.33332H53.6667ZM45.667 49V52H47.667V49H45.667ZM48.3333 46.6666C48.3333 47.5871 47.5871 48.3333 46.6667 48.3333V50.3333C48.6917 50.3333 50.3333 48.6917 50.3333 46.6666H48.3333ZM46.6667 48.3333C45.7462 48.3333 45 47.5871 45 46.6666H43C43 48.6917 44.6416 50.3333 46.6667 50.3333V48.3333ZM45 46.6666C45 45.7462 45.7462 45 46.6667 45V43C44.6416 43 43 44.6416 43 46.6666H45ZM46.6667 45C47.5871 45 48.3333 45.7462 48.3333 46.6666H50.3333C50.3333 44.6416 48.6917 43 46.6667 43V45ZM25 44H34.6562V42H25V44ZM33.6562 43V46H35.6562V43H33.6562ZM34.6562 45H25V47H34.6562V45ZM26 46V43H24V46H26Z"
-                                  fill="currentColor"
-                                />
-                              </g>
-                            </svg>
-                          </div>
-                        </div>
-                        <h4 className="text-xl md:text-2xl tracking-tighter leading-tight text-gray-900 dark:text-gray-100">
-                          Composable Stack
-                        </h4>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Our layers are designed to compound. Data verified in
-                          one layer unlocks capabilities in others, creating a
-                          powerful flywheel effect.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Generational Team */}
-                <div className="p-6 mb-4 md:mb-0 group relative w-full rounded-md last:mb-0">
-                  <div className="h-full w-full">
-                    <div className="flex h-full w-full flex-col">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-9 h-9">
-                          <div className="relative h-full w-full rounded-md flex items-center justify-center">
-                            <svg
-                              width="24"
-                              height="24"
-                              viewBox="0 0 64 64"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="text-gray-700 dark:text-gray-300"
-                            >
-                              <g transform="translate(-10.5, 0)">
-                                <path
-                                  d="M44.0002 46.6666V44.7633C44.0002 43.59 44.5202 42.4766 45.4135 41.7133C49.8502 37.9233 52.6669 32.29 52.6669 26C52.6669 14.4766 43.2369 5.15664 31.6735 5.33664C20.6969 5.50664 11.6702 14.3933 11.3435 25.37C11.1469 31.9166 14.0002 37.7966 18.5835 41.7133C19.4769 42.4766 20.0002 43.5866 20.0002 44.7633V46.6666M32.0002 27.3834V36.0001M32.0002 27.3834L25.3335 21.3334M32.0002 27.3834L38.6668 21.3334M24.0002 53.3334H40.0002V54.6668C40.0002 56.8759 38.2093 58.6668 36.0002 58.6668H28.0002C25.791 58.6668 24.0002 56.8759 24.0002 54.6668V53.3334ZM20.0002 45.3334H44.0002V52.3334C44.0002 52.8857 43.5524 53.3334 43.0002 53.3334H21.0002C20.4479 53.3334 20.0002 52.8857 20.0002 52.3334V45.3334Z"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                />
-                              </g>
-                            </svg>
-                          </div>
-                        </div>
-                        <h4 className="text-xl md:text-2xl tracking-tighter leading-tight text-gray-900 dark:text-gray-100">
-                          Generational Team
-                        </h4>
-                        {/* Plus Button to Navigate to Team Page */}
-                        <Link href="/team" className="ml-auto">
-                          <div className="mt-xs bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/40 flex h-8 w-8 items-center justify-center rounded-full group cursor-pointer transition-colors duration-200">
-                            <svg
-                              className="text-blue-600 dark:text-blue-400 opacity-[44%] group-hover:opacity-100 transition-opacity duration-200"
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="16"
-                              viewBox="0 0 16 16"
-                              fill="none"
-                            >
-                              <path
-                                d="M1.34311 8C1.34311 7.44772 1.79082 7 2.34311 7L6.99996 7L6.99996 2.34315C6.99996 1.79086 7.44768 1.34315 7.99996 1.34314C8.55225 1.34314 8.99996 1.79086 8.99996 2.34314L8.99996 7L13.6568 7C14.2091 7 14.6568 7.44771 14.6568 8C14.6568 8.55228 14.2091 9 13.6568 9L8.99996 9L8.99996 13.6569C8.99996 14.2091 8.55225 14.6569 7.99996 14.6569C7.44768 14.6569 6.99996 14.2091 6.99996 13.6569L6.99996 9L2.34311 9C1.79082 9 1.34311 8.55228 1.34311 8Z"
-                                fill="currentColor"
-                              ></path>
-                            </svg>
-                          </div>
-                        </Link>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Our founding and advisory team has a track record of
-                          over $10B in exits across infrastructure, AI,
-                          security, and global marketplaces.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+            {/* Profound Security */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
+              viewport={{ once: true, margin: "-100px" }}
+              className="text-center p-6 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-500 group"
+            >
+              <div className="mb-4 text-gray-500 dark:text-gray-400 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors flex justify-center">
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  width="32" 
+                  height="32" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="1.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
               </div>
-            </div>
+              <h3 className="text-lg font-bold mb-2 text-gray-900 dark:text-gray-100">Profound Security</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                Encryption, isolation, and zero-knowledge architecture. Peace of mind by design.
+              </p>
+            </motion.div>
 
-            {/* Partner/Technology Logos */}
-            <div className="mt-24 mb-8 pt-8">
-              <LogoCarousel
-                className="w-full [&_img]:invert [&_img]:dark:invert-0"
-                speed={4}
-                logos={[
-                  {
-                    name: "Google",
-                    src: "/companies/google.svg",
-                    className: "h-16",
-                  },
-                  {
-                    name: "Spotify",
-                    src: "/companies/spotify.svg",
-                    className: "h-16",
-                  },
-                  {
-                    name: "Citi",
-                    src: "/companies/citi.svg",
-                    className: "h-16",
-                  },
-                  {
-                    name: "PwC",
-                    src: "/companies/pwc.svg",
-                    className: "h-16",
-                  },
-                  {
-                    name: "Nasdaq",
-                    src: "/companies/nas-daq.svg",
-                    className: "h-16",
-                  },
-                  {
-                    name: "NYSE",
-                    src: "/companies/nyse.svg",
-                    className: "h-16",
-                  },
-                  {
-                    name: "GE",
-                    src: "/companies/ge.svg",
-                    className: "h-16",
-                  },
-                  {
-                    name: "AOL",
-                    src: "/companies/aol.svg",
-                    className: "h-16",
-                  },
-                  {
-                    name: "EY",
-                    src: "/companies/ey.svg",
-                    className: "h-16",
-                  },
-                  {
-                    name: "BCG",
-                    src: "/companies/bcg.svg",
-                    className: "h-16",
-                  },
-                ]}
-              />
-            </div>
+            {/* Recognised Value */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
+              viewport={{ once: true, margin: "-100px" }}
+              className="text-center p-6 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-500 group"
+            >
+              <div className="mb-4 text-gray-500 dark:text-gray-400 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors flex justify-center">
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  width="32" 
+                  height="32" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="1.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+              </div>
+              <h3 className="text-lg font-bold mb-2 text-gray-900 dark:text-gray-100">Recognised Value</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                Stop being the product. When you share, you define the terms and keep the value.
+              </p>
+            </motion.div>
           </div>
         </div>
+
       </section>
 
       {/* CTA Section + Footer Combined - Full Viewport */}

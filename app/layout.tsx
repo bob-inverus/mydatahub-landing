@@ -20,9 +20,9 @@ const ibmPlexMono = IBM_Plex_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "inVerus | Know Who’s Real Know What's Real",
+  title: "MyDataHub — Your Digital Sanctuary",
   description:
-    "The AI-native Trust Layer for the internet. Verify humans, content, and agents in milliseconds — and lay the foundation for your self-sovereign digital identity.",
+    "Your data, your sanctuary. It's time for clarity. It's time for control. A place of focus, trust, and true ownership — a place that is yours.",
 };
 
 export default function RootLayout({
