@@ -158,9 +158,9 @@ export function ChatLandingWindow() {
   const particleDataRef = useRef<Array<{ x: number; y: number; baseX: number; baseY: number; size: number; isBlue: boolean; distanceFromCenter: number }>>([]);
   const cursorRef = useRef({ x: 0, y: 0 });
   const isAutoModeRef = useRef(true);
-  const lastMouseMoveRef = useRef(Date.now());
-  const startTimeRef = useRef(Date.now());
-  const animationFrameRef = useRef<number>();
+  const lastMouseMoveRef = useRef<number>(Date.now());
+  const startTimeRef = useRef<number>(Date.now());
+  const animationFrameRef = useRef<number | undefined>(undefined);
   
   // Hero (Section 1) Grid Particle animation state - matching animation.tsx exactly
   const heroContainerRef = useRef<HTMLDivElement>(null);
@@ -169,10 +169,10 @@ export function ChatLandingWindow() {
   const [heroStaticCursor, setHeroStaticCursor] = useState({ x: 0, y: 0 });
   const [isHeroAutoMode, setIsHeroAutoMode] = useState(true);
   const [isHeroStaticAnimation, setIsHeroStaticAnimation] = useState(false);
-  const heroStartTimeRef = useRef(Date.now());
-  const heroLastMouseMoveRef = useRef(Date.now());
-  const heroAnimationFrameRef = useRef<number>();
-  const heroTimeoutRef = useRef<NodeJS.Timeout>();
+  const heroStartTimeRef = useRef<number>(Date.now());
+  const heroLastMouseMoveRef = useRef<number>(Date.now());
+  const heroAnimationFrameRef = useRef<number | undefined>(undefined);
+  const heroTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const heroRows = 15; // Grid size (15x15 = 225 particles)
   const heroTotalParticles = heroRows * heroRows;
 
