@@ -94,7 +94,7 @@ export function LoginForm({
           <InverusIcon className="mx-auto h-16 w-16" />
           <h1 className="text-3xl font-semibold">Join the Beta</h1>
           <p className="text-muted-foreground">
-            Sign up for early access to inVerus. Be among the first to verify who's real.
+            Sign up for early access to MyDataHub. Be among the first to secure your digital sanctuary.
           </p>
         </div>
 

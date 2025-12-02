@@ -1,11 +1,11 @@
-# inVerus Marketing Site
+# MyDataHub Landing Site
 
-We decided to separate the marketing site from the main application to keep things clean and focused. This directory contains everything needed to showcase inVerus without the complexity of the full app.
+We decided to separate the marketing site from the main application to keep things clean and focused. This directory contains everything needed to showcase MyDataHub without the complexity of the full app.
 
 ## What's here
 
-- **Landing page**: The main demo experience that shows off what inVerus can do
-- **Team showcase**: Meet the people behind inVerus
+- **Landing page**: The main demo experience that shows off what MyDataHub can do
+- **Team showcase**: Meet the people behind MyDataHub
 - **Clean setup**: Just the essentials - no backend complexity
 
 ## Why we split this out

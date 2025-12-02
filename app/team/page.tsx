@@ -229,7 +229,7 @@ export default function TeamPage() {
                         We're looking for builders, not resumes.
                       </p>
                       <a 
-                        href={`mailto:${recruitingCard.ctaEmail}?subject=I want to join the inVerus team&body=Hi Andrew,%0D%0A%0D%0AI'm interested in joining the inVerus team.%0D%0A%0D%0A`} 
+                        href={`mailto:${recruitingCard.ctaEmail}?subject=I want to join the MyDataHub team&body=Hi Andrew,%0D%0A%0D%0AI'm interested in joining the MyDataHub team.%0D%0A%0D%0A`} 
                         className="inline-block bg-blue-600 hover:bg-blue-500 transition-colors text-white font-semibold py-3 px-8 rounded-full shadow-lg shadow-blue-600/20 text-base"
                       >
                         {recruitingCard.ctaText}

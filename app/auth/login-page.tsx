@@ -164,7 +164,7 @@ export function LoginPage() {
   return (
     <div className="bg-background text-foreground">
       <SignInPage
-        title={<span className="font-light text-foreground tracking-tighter">Welcome to inVerus</span>}
+        title={<span className="font-light text-foreground tracking-tighter">Welcome to MyDataHub</span>}
         description="Access your account and continue your journey with us"
         heroImageSrc="https://images.unsplash.com/photo-1642615835477-d303d7dc9ee9?w=2160&q=80"
         testimonials={sampleTestimonials}

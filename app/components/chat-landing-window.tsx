@@ -165,10 +165,45 @@ export function ChatLandingWindow() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Particle field
+  // Particle field with animation
   useEffect(() => {
     const particleField = document.getElementById('particleField');
     if (!particleField) return;
+
+    // Add CSS animations
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes float {
+        0%, 100% {
+          transform: translate(0, 0) scale(1);
+        }
+        25% {
+          transform: translate(10px, -10px) scale(1.05);
+        }
+        50% {
+          transform: translate(-5px, 5px) scale(0.95);
+        }
+        75% {
+          transform: translate(-10px, -5px) scale(1.02);
+        }
+      }
+      
+      @keyframes float-alt {
+        0%, 100% {
+          transform: translate(0, 0) scale(1);
+        }
+        25% {
+          transform: translate(-8px, 8px) scale(0.98);
+        }
+        50% {
+          transform: translate(8px, -8px) scale(1.03);
+        }
+        75% {
+          transform: translate(5px, 10px) scale(0.97);
+        }
+      }
+    `;
+    document.head.appendChild(style);
 
     // Create particles
     const createParticles = () => {
@@ -179,6 +214,9 @@ export function ChatLandingWindow() {
         const particle = document.createElement('div');
         const size = Math.random() * 6 + 3; // 3-9px (bigger)
         const isBlue = Math.random() > 0.5; // 50% blue, 50% grey
+        const duration = Math.random() * 10 + 10; // 10-20s duration
+        const delay = Math.random() * -20; // Random start time
+        const animationType = Math.random() > 0.5 ? 'float' : 'float-alt';
         
         particle.style.cssText = `
           position: absolute;
@@ -188,9 +226,9 @@ export function ChatLandingWindow() {
           background: ${isBlue ? 'rgb(59, 130, 246)' : 'rgb(156, 163, 175)'};
           left: ${Math.random() * 100}%;
           top: ${Math.random() * 100}%;
-          opacity: ${Math.random() * 0.5 + 0.2};
-          transform: scale(${Math.random()});
-          box-shadow: ${isBlue ? '0 0 12px rgba(59, 130, 246, 0.8)' : 'none'};
+          opacity: ${Math.random() * 0.15 + 0.05};
+          box-shadow: ${isBlue ? '0 0 8px rgba(59, 130, 246, 0.2)' : 'none'};
+          animation: ${animationType} ${duration}s ease-in-out infinite ${delay}s;
         `;
         
         particleField.appendChild(particle);
@@ -198,6 +236,10 @@ export function ChatLandingWindow() {
     };
 
     createParticles();
+
+    return () => {
+      document.head.removeChild(style);
+    };
   }, []);
 
   // Handle section detection using Intersection Observer
@@ -405,8 +447,8 @@ export function ChatLandingWindow() {
       if (navigator.share) {
         // Use native share API if available
         await navigator.share({
-          title: "inVerus Trust Layer Demo",
-          text: "Check out this Trust Layer verification result from inVerus",
+          title: "MyDataHub Demo",
+          text: "Check out this result from MyDataHub",
           url: window.location.href,
         });
       } else {
@@ -447,7 +489,7 @@ export function ChatLandingWindow() {
               /* Empty state - centered layout */
               <div className="flex flex-1 items-center justify-center flex-col">
                 <div className="text-center">
-                  {/* Logo Mark - inVerus Logo (Placeholder) */}
+                  {/* Logo Mark - MyDataHub Logo (Placeholder) */}
                   <div className="flex justify-center mb-6">
                     <svg
                       width="80"
@@ -468,19 +510,19 @@ export function ChatLandingWindow() {
                   
                   {/* Logo Mark - MyDataHub */}
                   <div className="flex justify-center mb-6">
-                    <div className="text-lg font-medium tracking-wide uppercase text-gray-500 dark:text-gray-400">
+                    <div className="text-base font-normal tracking-widest uppercase text-gray-400 dark:text-gray-500">
                       MyDataHub
                     </div>
                   </div>
                   
                   {/* Header */}
-                  <h1 className="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tighter leading-tight max-w-4xl text-gray-900 dark:text-gray-100 text-balance mb-6">
+                  <h1 className="text-4xl md:text-5xl lg:text-7xl font-semibold tracking-tight leading-tight max-w-4xl text-gray-900 dark:text-gray-100 text-balance mb-6">
                     Your Data.<br />Your Sanctuary.
                   </h1>
 
                   {/* Subtitle */}
                   <div className="mb-4 md:mb-8">
-                    <p className="text-gray-600 dark:text-gray-400 max-w-3xl text-xl md:text-2xl">
+                    <p className="text-gray-500 dark:text-gray-400 max-w-3xl text-xl md:text-2xl font-light">
                       It's time for clarity. It's time for control.
                     </p>
                   </div>
@@ -729,7 +771,7 @@ export function ChatLandingWindow() {
         className="relative flex flex-col items-center justify-center min-h-[calc(100svh-2rem)] md:min-h-screen w-full px-4 py-12 md:py-16 overflow-hidden"
       >
         {/* Particle Background */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 opacity-60">
           <div 
             id="particleField" 
             className="w-full h-full"
@@ -738,15 +780,15 @@ export function ChatLandingWindow() {
               willChange: 'transform'
             }}
           />
-        </div>
+                </div>
 
         {/* Content */}
-        <div className="relative z-10 max-w-3xl mx-auto text-center space-y-16">
+        <div className="relative z-10 max-w-3xl mx-auto text-center space-y-24 md:space-y-32">
           {/* First paragraph */}
           <motion.p 
             initial={{ opacity: 0, y: 30, scale: 0.98 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1] }}
             viewport={{ once: true, margin: "-100px" }}
             className="text-2xl md:text-4xl leading-normal font-light text-gray-900 dark:text-gray-100"
           >
@@ -761,7 +803,7 @@ export function ChatLandingWindow() {
           <motion.p
             initial={{ opacity: 0, y: 30, scale: 0.98 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+            transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
             viewport={{ once: true, margin: "-100px" }}
             className="text-xl md:text-3xl italic text-gray-500 dark:text-gray-400 font-light"
           >
@@ -772,7 +814,7 @@ export function ChatLandingWindow() {
           <motion.p
             initial={{ opacity: 0, y: 30, scale: 0.98 }}
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
+            transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.8 }}
             viewport={{ once: true, margin: "-100px" }}
             className="text-2xl md:text-4xl font-medium leading-relaxed text-gray-900 dark:text-gray-100"
           >
@@ -792,6 +834,225 @@ export function ChatLandingWindow() {
         id="architecture-section"
         className="relative flex flex-col items-center justify-center min-h-[calc(100svh-2rem)] md:min-h-screen w-full px-4 py-12 md:py-16 overflow-hidden"
       >
+        {/* AI Animation Styles */}
+        <style>{`
+          @property --a {
+            syntax: "<angle>";
+            inherits: true;
+            initial-value: 0deg;
+          }
+          @property --l {
+            syntax: "<number>";
+            inherits: true;
+            initial-value: 0;
+          }
+          @property --x {
+            syntax: "<length>";
+            inherits: false;
+            initial-value: 0;
+          }
+          @property --o {
+            syntax: "<number>";
+            inherits: false;
+            initial-value: 0;
+          }
+          @property --value {
+            syntax: "<angle>";
+            inherits: true;
+            initial-value: 0deg;
+          }
+          @property --width-ratio {
+            syntax: "<number>";
+            inherits: true;
+            initial-value: 0;
+          }
+          @property --scale {
+            syntax: "<number>";
+            inherits: true;
+            initial-value: 0;
+          }
+          
+          .ai-visualizer {
+            --s: 200px;
+            --p: calc(var(--s) / 4);
+            --count: 4;
+            --radius: 30px;
+            width: var(--s);
+            aspect-ratio: 1;
+            --bg-color: color-mix(in srgb, #3b82f6, transparent 90%);
+            background: radial-gradient(60% 75% at center, var(--bg-color) 50%, transparent 50%), 
+                        radial-gradient(75% 60% at center, var(--bg-color) 50%, transparent 50%);
+            padding: var(--p);
+            display: grid;
+            place-items: center;
+            position: relative;
+            border-radius: 50%;
+            transform: scale(1);
+          }
+          
+          @keyframes ai-orbit {
+            from {
+              --a: 360deg;
+              --l: 0.35;
+              --o: 1;
+            }
+            30% {
+              --l: 1.5;
+            }
+            70% {
+              --o: 0.4;
+              --l: 0.05;
+            }
+            98% {
+              --o: 0.7;
+            }
+            to {
+              --a: 0deg;
+              --l: 0.35;
+              --o: 1;
+            }
+          }
+          
+          .ai-circle {
+            opacity: 0.9;
+            position: absolute;
+            width: 40px;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            --offset-per-item: calc(360deg / var(--count));
+            --current-angle-offset: calc(var(--offset-per-item) * var(--i) + var(--a));
+            translate: calc(cos(var(--current-angle-offset)) * var(--radius) + var(--x, 0)) 
+                       calc(sin(var(--current-angle-offset)) * var(--radius) * -1);
+            scale: calc(0.6 + var(--l));
+            animation: ai-orbit 5.5s cubic-bezier(0.45, -0.35, 0.16, 1.5) infinite;
+            transition: opacity 0.3s linear;
+            opacity: var(--o, 1);
+          }
+          
+          .ai-c1 {
+            --i: 0;
+            background: radial-gradient(50% 50% at center, #60a5fa, #93c5fd);
+            --x: 4px;
+            width: 64px;
+            animation-timing-function: cubic-bezier(0.12, 0.32, 0.68, 0.24);
+          }
+          
+          .ai-c2 {
+            --i: 1;
+            background: radial-gradient(50% 50% at center, #3b82f6, #bfdbfe);
+            width: 60px;
+          }
+          
+          .ai-c3 {
+            --i: 2;
+            background: radial-gradient(50% 50% at center, #2563eb, transparent);
+            width: 20px;
+            opacity: 0.6;
+            --x: -4px;
+          }
+          
+          .ai-c4 {
+            --i: 3;
+            background: #1d4ed8;
+            animation-timing-function: cubic-bezier(0.39, -0.03, 0.75, 0.47);
+          }
+          
+          .ai-container {
+            overflow: hidden;
+            background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 50%, #93c5fd 100%);
+            width: 100%;
+            border-radius: 50%;
+            aspect-ratio: 1;
+            position: relative;
+            display: grid;
+            place-items: center;
+          }
+          
+          .ai-glass {
+            overflow: hidden;
+            position: absolute;
+            --w: 2px;
+            inset: calc(var(--p) - var(--w));
+            border-radius: 50%;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 0 32px color-mix(in srgb, #3b82f6, transparent 60%);
+            background: radial-gradient(40px at 70% 30%, rgba(255, 255, 255, 0.5), transparent);
+          }
+          
+          .ai-glass:after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            --c: rgba(255, 255, 255, 0.03);
+            --w: 1px;
+            --g: 3px;
+            background: repeating-linear-gradient(var(--c), var(--c), var(--w), transparent var(--w), transparent calc(var(--w) + var(--g)));
+            border-radius: inherit;
+            border: 4px rgba(255, 255, 255, 0.15) solid;
+          }
+          
+          .ai-rings {
+            aspect-ratio: 1;
+            border-radius: 50%;
+            position: absolute;
+            inset: 0;
+            perspective: 176px;
+            opacity: 0.7;
+            --width: 4px;
+            --duration: 8s;
+          }
+          
+          .ai-rings:before, .ai-rings:after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            --width-ratio: 1;
+            border: calc(var(--width) * var(--width-ratio)) solid transparent;
+            mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            background: linear-gradient(135deg, #ffffff, #60a5fa, #3b82f6, #1d4ed8, #bfdbfe) border-box;
+            mask-composite: exclude;
+            animation: ai-ring var(--duration) ease-in-out infinite;
+            --start: 180deg;
+            --value: var(--start);
+            --scale: 1;
+            transform: rotateY(var(--value)) rotateX(var(--value)) rotateZ(var(--value)) scale(var(--scale));
+          }
+          
+          .ai-rings:before {
+            --start: 180deg;
+          }
+          
+          .ai-rings:after {
+            --start: 90deg;
+          }
+          
+          @keyframes ai-ring {
+            from {
+              --value: var(--start);
+              --scale: 1;
+            }
+            50% {
+              --scale: 1.2;
+              --width-ratio: 1.5;
+            }
+            70% {
+              --scale: 1;
+              --value: calc(var(--start) + 180deg);
+              --width-ratio: 1;
+            }
+            80% {
+              --scale: 1.2;
+              --width-ratio: 1.5;
+            }
+            to {
+              --value: calc(var(--start) + 360deg);
+              --scale: 1;
+              --width-ratio: 1;
+            }
+          }
+        `}</style>
+
         {/* Content */}
         <div className="relative z-10 w-full max-w-5xl mx-auto">
           {/* Header */}
@@ -805,6 +1066,26 @@ export function ChatLandingWindow() {
             This is Your Sanctuary.
           </motion.h2>
 
+          {/* AI Animation Visualizer */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+            viewport={{ once: true, margin: "-100px" }}
+            className="flex justify-center mb-16"
+          >
+            <div className="ai-visualizer">
+              <div className="ai-container">
+                <div className="ai-circle ai-c4"></div>
+                <div className="ai-circle ai-c1"></div>
+                <div className="ai-circle ai-c2"></div>
+                <div className="ai-circle ai-c3"></div>
+                <div className="ai-rings"></div>
+              </div>
+              <div className="ai-glass"></div>
+            </div>
+          </motion.div>
+
           {/* 3 Pillars */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 w-full px-4">
             {/* Absolute Control */}
@@ -817,19 +1098,19 @@ export function ChatLandingWindow() {
             >
               <div className="mb-4 text-gray-500 dark:text-gray-400 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors flex justify-center">
                 <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
+                              xmlns="http://www.w3.org/2000/svg"
                   width="32" 
                   height="32" 
                   viewBox="0 0 24 24" 
                   fill="none" 
-                  stroke="currentColor" 
+                                  stroke="currentColor"
                   strokeWidth="1.5" 
                   strokeLinecap="round" 
                   strokeLinejoin="round"
                 >
                   <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
-                </svg>
-              </div>
+                            </svg>
+                          </div>
               <h3 className="text-lg font-bold mb-2 text-gray-900 dark:text-gray-100">Absolute Control</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                 You hold the only key. Grant access by purpose, and revoke it instantly.
@@ -846,7 +1127,7 @@ export function ChatLandingWindow() {
             >
               <div className="mb-4 text-gray-500 dark:text-gray-400 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors flex justify-center">
                 <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
+                              xmlns="http://www.w3.org/2000/svg"
                   width="32" 
                   height="32" 
                   viewBox="0 0 24 24" 
@@ -857,8 +1138,8 @@ export function ChatLandingWindow() {
                   strokeLinejoin="round"
                 >
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                </svg>
-              </div>
+                            </svg>
+                          </div>
               <h3 className="text-lg font-bold mb-2 text-gray-900 dark:text-gray-100">Profound Security</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                 Encryption, isolation, and zero-knowledge architecture. Peace of mind by design.
@@ -875,26 +1156,26 @@ export function ChatLandingWindow() {
             >
               <div className="mb-4 text-gray-500 dark:text-gray-400 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors flex justify-center">
                 <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
+                              xmlns="http://www.w3.org/2000/svg"
                   width="32" 
                   height="32" 
                   viewBox="0 0 24 24" 
-                  fill="none" 
+                              fill="none"
                   stroke="currentColor" 
                   strokeWidth="1.5" 
                   strokeLinecap="round" 
                   strokeLinejoin="round"
-                >
+                            >
                   <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                </svg>
-              </div>
+                            </svg>
+                          </div>
               <h3 className="text-lg font-bold mb-2 text-gray-900 dark:text-gray-100">Recognised Value</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                 Stop being the product. When you share, you define the terms and keep the value.
               </p>
             </motion.div>
-          </div>
-        </div>
+              </div>
+            </div>
 
       </section>
 
@@ -934,86 +1215,33 @@ export function ChatLandingWindow() {
         </div>
       </section>
 
-      {/* Section 5: CTA (Invitation) */}
+      {/* Section 5: CTA */}
       <section
         id="cta-section"
-        className="flex flex-col items-center justify-center min-h-[calc(100svh-2rem)] md:min-h-screen w-full px-4 py-12 md:py-16"
+        className="flex flex-col items-center justify-center min-h-[calc(100svh-2rem)] md:min-h-screen w-full px-4 py-2 md:py-8 my-4 md:my-0"
       >
-        <div className="w-full max-w-lg mx-auto flex-1 flex items-center justify-center">
-          <div className="w-full space-y-6">
-            {/* Scarcity Badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              viewport={{ once: true }}
-              className="flex justify-center"
-            >
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full text-sm font-semibold text-blue-500 dark:text-blue-400 shadow-sm">
-                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                <span>Limited Early Access: Cohort 1</span>
+        {/* CTA Content */}
+        <div className="w-full max-w-6xl mx-auto flex-1 flex items-center justify-center">
+          <div className="w-full">
+            <div className="bg-gray-50 dark:bg-gray-900 py-16 grid grid-cols-12 rounded-lg">
+              <div className="px-4 md:px-0 md:col-span-10 md:col-start-2 col-span-12 flex flex-col text-center">
+                <h1 className="text-2xl md:text-3xl lg:text-4xl tracking-tighter leading-tight max-w-4xl text-gray-900 dark:text-gray-100 text-balance mb-6 mx-auto">
+                  Step Into Your Sanctuary.
+                </h1>
+                <div className="mb-4 md:mb-8">
+                  <p className="text-gray-600 dark:text-gray-400 max-w-4xl text-lg mx-auto">
+                    Your data deserves a home it can trust.
+                  </p>
+                </div>
+                <div className="flex flex-col items-center justify-center">
+                  <Link href="/auth">
+                    <Button className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive shadow-xs h-9 has-[>svg]:px-3 bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 px-8 py-3 rounded-full transition duration-200">
+                      Secure My Sanctuary
+                    </Button>
+                  </Link>
+                </div>
               </div>
-            </motion.div>
-
-            {/* Heading */}
-            <motion.h2
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-              viewport={{ once: true }}
-              className="text-4xl md:text-6xl font-bold text-center tracking-tight text-gray-900 dark:text-gray-100"
-            >
-              Step Into Your Sanctuary.
-            </motion.h2>
-
-            {/* Subtitle */}
-            <motion.p
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-              viewport={{ once: true }}
-              className="text-xl text-gray-600 dark:text-gray-400 text-center"
-            >
-              Join the Founding Pioneers and reserve your exclusive place. Your journey to digital independence starts now.
-            </motion.p>
-
-            {/* Form */}
-            <motion.form
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
-              viewport={{ once: true }}
-              className="space-y-4"
-            >
-              <div className="relative">
-                <input
-                  type="email"
-                  placeholder="Enter your email address"
-                  required
-                  autoComplete="email"
-                  className="w-full px-6 py-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-lg text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
-                />
-              </div>
-
-              {/* Trust Microcopy */}
-              <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                Only for MyDataHub updates and Founding Circle access. No spam, ever. That's our vow.
-              </p>
-
-              {/* CTA Button */}
-              <button
-                type="submit"
-                className="w-full px-8 py-4 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold text-lg rounded-xl transition-all duration-200 hover:scale-[1.02] hover:shadow-lg hover:shadow-blue-500/20"
-              >
-                Secure My Sanctuary
-              </button>
-
-              {/* Justification Nudge */}
-              <p className="text-xs italic text-gray-500 dark:text-gray-400 text-center opacity-80">
-                (Because peace of mind is priceless.)
-              </p>
-            </motion.form>
-
+            </div>
           </div>
         </div>
 
@@ -1066,18 +1294,18 @@ export function ChatLandingWindow() {
 
                 {/* Links */}
                 <div className="flex items-center justify-center gap-2 text-gray-600 dark:text-gray-400">
-                  <Link
-                    href="/manifesto"
+                  <a
+                    href="mailto:andrew@inverus.tech"
                     className="text-blue-500 dark:text-blue-400 hover:text-gray-900 dark:hover:text-gray-100 transition duration-200"
                   >
-                    Our Belief
-                  </Link>
+                    Investors
+                  </a>
                   <span>·</span>
                   <Link
                     href="/manifesto"
                     className="text-blue-500 dark:text-blue-400 hover:text-gray-900 dark:hover:text-gray-100 transition duration-200"
                   >
-                    Our Solemn Vow
+                    Our Belief
                   </Link>
                 </div>
               </div>
@@ -1128,18 +1356,18 @@ export function ChatLandingWindow() {
                 {/* Right Links */}
                 <div className="absolute right-0 top-0">
                   <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                    <Link
-                      href="/manifesto"
+                    <a
+                      href="mailto:andrew@inverus.tech"
                       className="text-blue-500 dark:text-blue-400 hover:text-gray-900 dark:hover:text-gray-100 transition duration-200"
                     >
-                      Our Belief
-                    </Link>
+                      Investors
+                    </a>
                     <span>·</span>
                     <Link
                       href="/manifesto"
                       className="text-blue-500 dark:text-blue-400 hover:text-gray-900 dark:hover:text-gray-100 transition duration-200"
                     >
-                      Our Solemn Vow
+                      Our Belief
                     </Link>
                   </div>
                 </div>
