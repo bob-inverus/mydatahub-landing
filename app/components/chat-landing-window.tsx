@@ -153,29 +153,6 @@ export function ChatLandingWindow() {
   const [isMobile, setIsMobile] = useState(false);
   const sectionChangeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Section 2 Particle animation state
-  const particlesRef = useRef<HTMLDivElement[]>([]);
-  const particleDataRef = useRef<Array<{ x: number; y: number; baseX: number; baseY: number; size: number; isBlue: boolean; distanceFromCenter: number }>>([]);
-  const cursorRef = useRef({ x: 0, y: 0 });
-  const isAutoModeRef = useRef(true);
-  const lastMouseMoveRef = useRef<number>(Date.now());
-  const startTimeRef = useRef<number>(Date.now());
-  const animationFrameRef = useRef<number | undefined>(undefined);
-  
-  // Hero (Section 1) Grid Particle animation state - matching animation.tsx exactly
-  const heroContainerRef = useRef<HTMLDivElement>(null);
-  const heroParticlesRef = useRef<HTMLDivElement[]>([]);
-  const [heroCursor, setHeroCursor] = useState({ x: 0, y: 0 });
-  const [heroStaticCursor, setHeroStaticCursor] = useState({ x: 0, y: 0 });
-  const [isHeroAutoMode, setIsHeroAutoMode] = useState(true);
-  const [isHeroStaticAnimation, setIsHeroStaticAnimation] = useState(false);
-  const heroStartTimeRef = useRef<number>(Date.now());
-  const heroLastMouseMoveRef = useRef<number>(Date.now());
-  const heroAnimationFrameRef = useRef<number | undefined>(undefined);
-  const heroTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
-  const heroRows = 15; // Grid size (15x15 = 225 particles)
-  const heroTotalParticles = heroRows * heroRows;
-
   // Mobile detection
   useEffect(() => {
     const checkMobile = () => {
@@ -188,293 +165,80 @@ export function ChatLandingWindow() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Hero Grid Particle Animation - Initialize particles (matching animation.tsx)
-  useEffect(() => {
-    if (!heroContainerRef.current) return;
-    
-    const container = heroContainerRef.current;
-    container.innerHTML = '';
-    heroParticlesRef.current = [];
-
-    for (let i = 0; i < heroTotalParticles; i++) {
-      const particle = document.createElement('div');
-      particle.className = 'hero-particle absolute rounded-full will-change-transform';
-      
-      // Calculate grid position
-      const row = Math.floor(i / heroRows);
-      const col = i % heroRows;
-      const centerRow = Math.floor(heroRows / 2);
-      const centerCol = Math.floor(heroRows / 2);
-      
-      // Distance from center for stagger effects
-      const distanceFromCenter = Math.sqrt(
-        Math.pow(row - centerRow, 2) + Math.pow(col - centerCol, 2)
-      );
-      
-      // Staggered scale (larger in center)
-      const scale = Math.max(0.1, 1.2 - distanceFromCenter * 0.12);
-      
-      // Staggered opacity (more opaque in center)
-      const opacity = Math.max(0.05, 1 - distanceFromCenter * 0.1);
-      
-      // Glow intensity
-      const glowSize = Math.max(1, 8 - distanceFromCenter * 0.6);
-      
-      particle.style.cssText = `
-        width: 0.5rem;
-        height: 0.5rem;
-        left: ${col * 1.8}rem;
-        top: ${row * 1.8}rem;
-        transform: scale(${scale});
-        opacity: ${opacity};
-        background: rgb(59, 130, 246);
-        box-shadow: 0 0 ${glowSize}px rgba(59, 130, 246, 0.6);
-        z-index: ${Math.round(heroTotalParticles - distanceFromCenter * 5)};
-        transition: transform 0.05s linear;
-      `;
-      
-      container.appendChild(particle);
-      heroParticlesRef.current.push(particle);
-    }
-  }, [heroRows, heroTotalParticles]);
-
-  // Hero Continuous Animation (matching animation.tsx)
-  useEffect(() => {
-    const animate = () => {
-      const currentTime = (Date.now() - heroStartTimeRef.current) * 0.001;
-      
-      if (isHeroAutoMode) {
-        const x = Math.sin(currentTime * 0.3) * 200 + Math.sin(currentTime * 0.17) * 100;
-        const y = Math.cos(currentTime * 0.2) * 150 + Math.cos(currentTime * 0.23) * 80;
-        setHeroCursor({ x, y });
-      } else if (isHeroStaticAnimation) {
-        const timeSinceLastMove = Date.now() - heroLastMouseMoveRef.current;
-        
-        if (timeSinceLastMove > 200) {
-          const animationStrength = Math.min((timeSinceLastMove - 200) / 1000, 1);
-          const subtleX = Math.sin(currentTime * 1.5) * 20 * animationStrength;
-          const subtleY = Math.cos(currentTime * 1.2) * 16 * animationStrength;
-          
-          setHeroCursor({
-            x: heroStaticCursor.x + subtleX,
-            y: heroStaticCursor.y + subtleY
-          });
-        }
-      }
-      
-      heroAnimationFrameRef.current = requestAnimationFrame(animate);
-    };
-    
-    animate();
-    
-    return () => {
-      if (heroAnimationFrameRef.current) {
-        cancelAnimationFrame(heroAnimationFrameRef.current);
-      }
-    };
-  }, [isHeroAutoMode, isHeroStaticAnimation, heroStaticCursor]);
-
-  // Update Hero Particle Positions (matching animation.tsx)
-  useEffect(() => {
-    heroParticlesRef.current.forEach((particle, i) => {
-      const row = Math.floor(i / heroRows);
-      const col = i % heroRows;
-      const centerRow = Math.floor(heroRows / 2);
-      const centerCol = Math.floor(heroRows / 2);
-      const distanceFromCenter = Math.sqrt(
-        Math.pow(row - centerRow, 2) + Math.pow(col - centerCol, 2)
-      );
-      
-      const delay = distanceFromCenter * 8;
-      const originalScale = Math.max(0.1, 1.2 - distanceFromCenter * 0.12);
-      const dampening = Math.max(0.3, 1 - distanceFromCenter * 0.08);
-      
-      setTimeout(() => {
-        const moveX = heroCursor.x * dampening;
-        const moveY = heroCursor.y * dampening;
-        
-        particle.style.transform = `translate(${moveX}px, ${moveY}px) scale(${originalScale})`;
-        particle.style.transition = `transform ${120 + distanceFromCenter * 20}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`;
-      }, delay);
-    });
-  }, [heroCursor, heroRows]);
-
-  // Hero Mouse/Touch Movement Handler
-  const handleHeroPointerMove = (e: React.MouseEvent | React.TouchEvent) => {
-    const event = 'touches' in e ? e.touches[0] : e;
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2;
-    
-    const newCursor = {
-      x: (event.clientX - centerX) * 0.8,
-      y: (event.clientY - centerY) * 0.8
-    };
-    
-    setHeroCursor(newCursor);
-    setHeroStaticCursor(newCursor);
-    setIsHeroAutoMode(false);
-    setIsHeroStaticAnimation(false);
-    heroLastMouseMoveRef.current = Date.now();
-    
-    if (heroTimeoutRef.current) {
-      clearTimeout(heroTimeoutRef.current);
-    }
-    
-    heroTimeoutRef.current = setTimeout(() => {
-      setIsHeroStaticAnimation(true);
-    }, 500);
-    
-    setTimeout(() => {
-      if (Date.now() - heroLastMouseMoveRef.current >= 4000) {
-        setIsHeroAutoMode(true);
-        setIsHeroStaticAnimation(false);
-        heroStartTimeRef.current = Date.now();
-      }
-    }, 4000);
-  };
-
-  // Interactive particle field animation (matching animation.tsx style)
+  // Particle field with animation
   useEffect(() => {
     const particleField = document.getElementById('particleField');
     if (!particleField) return;
 
-    const count = 400; // Optimal count for smooth animation
-    particleField.innerHTML = '';
-    particlesRef.current = [];
-    particleDataRef.current = [];
-    
-    // Get container dimensions
-    const containerWidth = particleField.offsetWidth || window.innerWidth;
-    const containerHeight = particleField.offsetHeight || window.innerHeight;
-    const centerX = containerWidth / 2;
-    const centerY = containerHeight / 2;
-    const maxDistance = Math.sqrt(centerX * centerX + centerY * centerY);
-
-    // Create particles
-    for (let i = 0; i < count; i++) {
-      const particle = document.createElement('div');
-      const size = Math.random() * 6 + 3; // 3-9px
-      const isBlue = Math.random() > 0.5;
-      const baseX = Math.random() * 100;
-      const baseY = Math.random() * 100;
-      
-      // Calculate distance from center for stagger effects
-      const posX = (baseX / 100) * containerWidth;
-      const posY = (baseY / 100) * containerHeight;
-      const distanceFromCenter = Math.sqrt(
-        Math.pow(posX - centerX, 2) + Math.pow(posY - centerY, 2)
-      ) / maxDistance;
-      
-      // Staggered opacity (more opaque near center)
-      const opacity = Math.max(0.05, 0.25 - distanceFromCenter * 0.15);
-      
-      // Glow intensity based on distance
-      const glowSize = isBlue ? Math.max(2, 8 - distanceFromCenter * 4) : 0;
-      
-      particle.className = 'particle-interactive';
-      particle.style.cssText = `
-        position: absolute;
-        width: ${size}px;
-        height: ${size}px;
-        border-radius: 50%;
-        background: ${isBlue ? 'rgb(59, 130, 246)' : 'rgb(156, 163, 175)'};
-        left: ${baseX}%;
-        top: ${baseY}%;
-        opacity: ${opacity};
-        box-shadow: ${isBlue ? `0 0 ${glowSize}px rgba(59, 130, 246, 0.3)` : 'none'};
-        will-change: transform;
-        transition: transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        pointer-events: none;
-      `;
-      
-      particleField.appendChild(particle);
-      particlesRef.current.push(particle);
-      particleDataRef.current.push({
-        x: posX,
-        y: posY,
-        baseX,
-        baseY,
-        size,
-        isBlue,
-        distanceFromCenter
-      });
-    }
-
-    // Animation loop
-    const animate = () => {
-      const currentTime = (Date.now() - startTimeRef.current) * 0.001;
-      const timeSinceLastMove = Date.now() - lastMouseMoveRef.current;
-      
-      // Auto-animation mode - organic flowing movement
-      if (isAutoModeRef.current || timeSinceLastMove > 2000) {
-        // Multiple sine waves for organic movement
-        const autoX = Math.sin(currentTime * 0.3) * 80 + Math.sin(currentTime * 0.17) * 40 + Math.cos(currentTime * 0.11) * 30;
-        const autoY = Math.cos(currentTime * 0.2) * 60 + Math.cos(currentTime * 0.23) * 35 + Math.sin(currentTime * 0.13) * 25;
-        cursorRef.current = { x: autoX, y: autoY };
-        
-        // Gradually return to auto mode
-        if (timeSinceLastMove > 2000 && !isAutoModeRef.current) {
-          isAutoModeRef.current = true;
+    // Add CSS animations
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes float {
+        0%, 100% {
+          transform: translate(0, 0) scale(1);
+        }
+        25% {
+          transform: translate(10px, -10px) scale(1.05);
+        }
+        50% {
+          transform: translate(-5px, 5px) scale(0.95);
+        }
+        75% {
+          transform: translate(-10px, -5px) scale(1.02);
         }
       }
       
-      // Update particle positions with stagger and dampening
-      particlesRef.current.forEach((particle, i) => {
-        const data = particleDataRef.current[i];
-        if (!data) return;
-        
-        // Dampening based on distance from center (closer = more movement)
-        const dampening = Math.max(0.2, 1 - data.distanceFromCenter * 0.7);
-        
-        // Staggered delay based on distance
-        const delayFactor = 1 - data.distanceFromCenter * 0.5;
-        
-        const moveX = cursorRef.current.x * dampening * delayFactor;
-        const moveY = cursorRef.current.y * dampening * delayFactor;
-        
-        // Add subtle individual oscillation
-        const individualOsc = Math.sin(currentTime * 2 + i * 0.1) * 3 * (1 - data.distanceFromCenter);
-        
-        particle.style.transform = `translate(${moveX + individualOsc}px, ${moveY + individualOsc * 0.7}px)`;
-      });
-      
-      animationFrameRef.current = requestAnimationFrame(animate);
-    };
-    
-    animate();
+      @keyframes float-alt {
+        0%, 100% {
+          transform: translate(0, 0) scale(1);
+        }
+        25% {
+          transform: translate(-8px, 8px) scale(0.98);
+        }
+        50% {
+          transform: translate(8px, -8px) scale(1.03);
+        }
+        75% {
+          transform: translate(5px, 10px) scale(0.97);
+        }
+      }
+    `;
+    document.head.appendChild(style);
 
-    // Mouse/touch movement handler for the section
-    const handlePointerMove = (e: MouseEvent | TouchEvent) => {
-      const section = document.getElementById('trust-protocol-section');
-      if (!section) return;
-      
-      const rect = section.getBoundingClientRect();
-      const event = 'touches' in e ? e.touches[0] : e;
-      
-      // Only respond when pointer is over the section
-      if (event.clientY < rect.top || event.clientY > rect.bottom) return;
-      
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      
-      cursorRef.current = {
-        x: (event.clientX - centerX) * 0.15,
-        y: (event.clientY - centerY) * 0.15
-      };
-      
-      isAutoModeRef.current = false;
-      lastMouseMoveRef.current = Date.now();
+    // Create particles
+    const createParticles = () => {
+      const count = 800; // More particles for denser field
+      particleField.innerHTML = ''; // Clear existing particles
+
+      for (let i = 0; i < count; i++) {
+        const particle = document.createElement('div');
+        const size = Math.random() * 6 + 3; // 3-9px (bigger)
+        const isBlue = Math.random() > 0.5; // 50% blue, 50% grey
+        const duration = Math.random() * 10 + 10; // 10-20s duration
+        const delay = Math.random() * -20; // Random start time
+        const animationType = Math.random() > 0.5 ? 'float' : 'float-alt';
+        
+        particle.style.cssText = `
+          position: absolute;
+          width: ${size}px;
+          height: ${size}px;
+          border-radius: 50%;
+          background: ${isBlue ? 'rgb(59, 130, 246)' : 'rgb(156, 163, 175)'};
+          left: ${Math.random() * 100}%;
+          top: ${Math.random() * 100}%;
+          opacity: ${Math.random() * 0.15 + 0.05};
+          box-shadow: ${isBlue ? '0 0 8px rgba(59, 130, 246, 0.2)' : 'none'};
+          animation: ${animationType} ${duration}s ease-in-out infinite ${delay}s;
+        `;
+        
+        particleField.appendChild(particle);
+      }
     };
-    
-    window.addEventListener('mousemove', handlePointerMove);
-    window.addEventListener('touchmove', handlePointerMove as EventListener);
+
+    createParticles();
 
     return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-      window.removeEventListener('mousemove', handlePointerMove);
-      window.removeEventListener('touchmove', handlePointerMove as EventListener);
+      document.head.removeChild(style);
     };
   }, []);
 
@@ -713,34 +477,12 @@ export function ChatLandingWindow() {
 
   return (
     <div className="w-full">
-      {/* Section 1: Hero with Grid Particle Animation */}
+      {/* Section 1: Chat Demo Window */}
       <section
         id="chat-demo-section"
-        className="relative flex flex-col items-center justify-center h-[100svh] md:min-h-screen w-full overflow-hidden"
-        onMouseMove={handleHeroPointerMove}
-        onTouchMove={handleHeroPointerMove}
+        className="flex flex-col items-center justify-center h-[100svh] md:min-h-screen w-full px-4 py-0 md:py-8 my-0"
       >
-        {/* Grid Particle Animation Background */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div
-            ref={heroContainerRef}
-            className="relative"
-            style={{
-              width: `${heroRows * 1.8}rem`,
-              height: `${heroRows * 1.8}rem`
-            }}
-          />
-        </div>
-        
-        {/* Ambient Effects - Works in both light and dark mode */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-20 left-20 w-80 h-80 bg-blue-500/10 dark:bg-blue-600/5 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-400/10 dark:bg-cyan-600/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[120vh] h-[120vh] bg-gradient-radial from-blue-500/5 dark:from-blue-900/3 to-transparent rounded-full"></div>
-        </div>
-
-        {/* Hero Content */}
-        <div className="relative z-10 w-full max-w-[900px] min-h-[400px] md:min-h-[480px] max-h-[85vh] md:max-h-[80vh] backdrop-filter backdrop-blur-xl rounded-md px-4 py-0 md:py-8">
+        <div className="w-full max-w-[900px] min-h-[400px] md:min-h-[480px] max-h-[85vh] md:max-h-[80vh] backdrop-filter backdrop-blur-xl rounded-md relative">
           {/* Main Chat Content */}
           <div className="flex h-full flex-col">
             {messages.length === 0 ? (
@@ -1028,11 +770,15 @@ export function ChatLandingWindow() {
         id="trust-protocol-section"
         className="relative flex flex-col items-center justify-center min-h-[calc(100svh-2rem)] md:min-h-screen w-full px-4 py-12 md:py-16 overflow-hidden"
       >
-        {/* Particle Background - Interactive Animation */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        {/* Particle Background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 opacity-60">
           <div 
             id="particleField" 
             className="w-full h-full"
+            style={{ 
+              transition: 'transform 0.1s linear',
+              willChange: 'transform'
+            }}
           />
                 </div>
 
