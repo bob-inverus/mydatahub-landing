@@ -73,7 +73,7 @@ export function ChatLandingWindow() {
           opacity: 1,
           y: 0,
           filter: "blur(0px)",
-          duration: 1.4,
+          duration: 1.2,
         }, "+=1");
     }, viewport1Ref);
 
@@ -302,10 +302,13 @@ export function ChatLandingWindow() {
           {/* Line 1 */}
           <p
             ref={line1Ref}
-            className="text-xl md:text-3xl lg:text-4xl leading-relaxed font-light text-gray-900 dark:text-gray-100"
+            className="text-xl md:text-2xl lg:text-3xl leading-relaxed font-light text-gray-900 dark:text-gray-100"
             style={{ opacity: 0 }}
           >
-            Your digital life: scattered, exposed, a story written by others.
+            Your digital life: scattered, exposed, a story written by others.{" "}
+            <span className="text-gray-500 dark:text-gray-400">
+              What they call "connection" often feels like exploitation.
+            </span>
           </p>
 
           {/* Line 2 */}
@@ -320,16 +323,16 @@ export function ChatLandingWindow() {
           {/* Line 3 */}
           <p
             ref={line3Ref}
-            className="text-lg md:text-2xl lg:text-3xl italic text-gray-500 dark:text-gray-400 font-light"
+            className="text-lg md:text-xl lg:text-2xl italic text-gray-500 dark:text-gray-400 font-light"
             style={{ opacity: 0 }}
           >
-            Are you tired...?
+            (Are you tired of being the unseen product in their profit equation?)
           </p>
 
           {/* Line 4 */}
           <p
             ref={line4Ref}
-            className="text-xl md:text-3xl lg:text-4xl font-medium leading-relaxed text-gray-900 dark:text-gray-100 pt-4"
+            className="text-xl md:text-2xl lg:text-3xl font-medium leading-relaxed text-gray-900 dark:text-gray-100 pt-4"
             style={{ opacity: 0 }}
           >
             We believe in a different future.
@@ -337,64 +340,70 @@ export function ChatLandingWindow() {
         </div>
       </section>
 
-      {/* Viewport 2: Clarity and Control */}
+      {/* Viewport 2: Your Data. Your Sanctuary. */}
       <section
         id="viewport-2-section"
         className="relative flex flex-col items-center justify-center min-h-[calc(100svh-2rem)] md:min-h-screen w-full px-4 py-12 md:py-16 overflow-hidden"
       >
-        <div className="relative z-10 max-w-4xl mx-auto text-center space-y-16 md:space-y-24">
-          {/* Line 1: It's time for clarity and control */}
-          <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
-            viewport={{ once: true, margin: "-100px" }}
-            className="text-2xl md:text-4xl leading-relaxed font-medium text-gray-900 dark:text-gray-100"
-          >
-            It's time for clarity and control.
-          </motion.p>
+        {/* Sparkles Background - Viewport 2 */}
+        <div className="absolute inset-0 w-full h-full">
+          <SparklesCore
+            id="viewport2Sparkles"
+            background="transparent"
+            minSize={0.4}
+            maxSize={1.4}
+            particleDensity={1200}
+            className="w-full h-full"
+            particleColor="#3B82F6"
+            speed={0.5}
+          />
+        </div>
 
-          {/* Line 2: A place of focus, trust and true ownership */}
-          <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1], delay: 0.2 }}
-            viewport={{ once: true, margin: "-100px" }}
-            className="text-xl md:text-3xl leading-relaxed text-gray-600 dark:text-gray-400 font-light"
-          >
-            A place of{" "}
-            <span className="font-semibold text-gray-900 dark:text-gray-100">
-              focus
-            </span>
-            ,{" "}
-            <span className="font-semibold text-gray-900 dark:text-gray-100">
-              trust
-            </span>{" "}
-            and{" "}
-            <span className="font-semibold text-gray-900 dark:text-gray-100">
-              true ownership
-            </span>{" "}
-            — a place that is{" "}
-            <span className="text-blue-500 dark:text-blue-400 font-semibold">
-              yours
-            </span>
-            .
-          </motion.p>
+        {/* Subtle radial gradient for depth */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.03)_0%,transparent_70%)] pointer-events-none" />
 
-          {/* Line 3: Your Data. Your Sanctuary. */}
-          <motion.div
-            initial={{ opacity: 0, y: 30, scale: 0.95 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 1.2, ease: [0.25, 0.1, 0.25, 1], delay: 0.4 }}
-            viewport={{ once: true, margin: "-100px" }}
-            className="pt-8"
-          >
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight text-gray-900 dark:text-gray-100">
+        <div className="flex flex-1 items-center justify-center flex-col relative z-10">
+          <div className="text-center max-w-4xl mx-auto space-y-12 md:space-y-16">
+            {/* Line 1 */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
+              viewport={{ once: true, margin: "-100px" }}
+              className="text-xl md:text-2xl lg:text-3xl font-light leading-relaxed text-gray-900 dark:text-gray-100"
+            >
+              It's time for clarity and control.
+            </motion.p>
+
+            {/* Line 2 */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1], delay: 0.2 }}
+              viewport={{ once: true, margin: "-100px" }}
+              className="text-lg md:text-xl lg:text-2xl leading-relaxed text-gray-600 dark:text-gray-400 font-light"
+            >
+              A place of{" "}
+              <span className="font-bold text-gray-900 dark:text-gray-100">focus</span>,{" "}
+              <span className="font-bold text-gray-900 dark:text-gray-100">trust</span> and{" "}
+              <span className="font-bold text-gray-900 dark:text-gray-100">true ownership</span>{" "}
+              - a place that is{" "}
+              <span className="text-blue-500 dark:text-blue-400 font-bold">yours</span>.
+            </motion.p>
+
+            {/* Main Heading - smaller but still prominent */}
+            <motion.h1
+              initial={{ opacity: 0, y: 30, scale: 0.95 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 1.2, ease: [0.25, 0.1, 0.25, 1], delay: 0.4 }}
+              viewport={{ once: true, margin: "-100px" }}
+              className="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight leading-tight text-gray-900 dark:text-gray-100 text-balance pt-4"
+            >
               Your Data.
               <br />
               Your Sanctuary.
-            </h1>
-          </motion.div>
+            </motion.h1>
+          </div>
         </div>
       </section>
 
@@ -641,7 +650,7 @@ export function ChatLandingWindow() {
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1], delay: 0.15 }}
             viewport={{ once: true, margin: "-100px" }}
-            className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-12 text-center text-gray-900 dark:text-gray-100"
+            className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-12 text-center text-gray-900 dark:text-gray-100"
           >
             MySanctum.ai
           </motion.h2>
@@ -849,7 +858,7 @@ export function ChatLandingWindow() {
                 </div>
                 <div className="flex flex-col items-center justify-center">
                   <Link href="/auth">
-                    <Button className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive shadow-xs h-9 has-[>svg]:px-3 bg-black dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 px-8 py-3 rounded-full transition duration-200">
+                    <Button className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive shadow-xs h-9 has-[>svg]:px-3 bg-blue-500 text-white hover:bg-blue-600 px-8 py-3 rounded-full transition duration-200">
                       Secure My Sanctuary
                     </Button>
                   </Link>
