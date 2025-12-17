@@ -14,12 +14,19 @@ export function ChatLandingWindow() {
   const [isMobile, setIsMobile] = useState(false);
   const sectionChangeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Refs for GSAP animations
+  // Refs for GSAP animations - Viewport 1
   const viewport1Ref = useRef<HTMLDivElement>(null);
   const line1Ref = useRef<HTMLParagraphElement>(null);
   const line2Ref = useRef<HTMLParagraphElement>(null);
   const line3Ref = useRef<HTMLParagraphElement>(null);
   const line4Ref = useRef<HTMLParagraphElement>(null);
+
+  // Refs for GSAP animations - Viewport 2
+  const viewport2Ref = useRef<HTMLDivElement>(null);
+  const v2line1Ref = useRef<HTMLParagraphElement>(null);
+  const v2line2Ref = useRef<HTMLParagraphElement>(null);
+  const v2line3Ref = useRef<HTMLHeadingElement>(null);
+  const [viewport2Visible, setViewport2Visible] = useState(false);
 
   // Mobile detection
   useEffect(() => {
@@ -49,36 +56,99 @@ export function ChatLandingWindow() {
         filter: "blur(10px)",
       });
 
-      // Animate each line sequentially with beautiful easing
+      // Animate each line sequentially with slower timing
       tl.to(line1Ref.current, {
         opacity: 1,
         y: 0,
         filter: "blur(0px)",
-        duration: 1.2,
+        duration: 1.5,
         delay: 0.5,
       })
         .to(line2Ref.current, {
           opacity: 1,
           y: 0,
           filter: "blur(0px)",
-          duration: 1.2,
-        }, "+=1")
+          duration: 1.5,
+        }, "+=2")
         .to(line3Ref.current, {
           opacity: 1,
           y: 0,
           filter: "blur(0px)",
-          duration: 1.2,
-        }, "+=1")
+          duration: 1.5,
+        }, "+=2")
         .to(line4Ref.current, {
           opacity: 1,
           y: 0,
           filter: "blur(0px)",
-          duration: 1.2,
-        }, "+=1");
+          duration: 1.5,
+        }, "+=2");
     }, viewport1Ref);
 
     return () => ctx.revert();
   }, []);
+
+  // GSAP Sequential text animation for Viewport 2 (triggered when visible)
+  useEffect(() => {
+    if (!viewport2Visible) return;
+
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        defaults: {
+          ease: "power3.out",
+        },
+      });
+
+      // Set initial states
+      gsap.set([v2line1Ref.current, v2line2Ref.current, v2line3Ref.current], {
+        opacity: 0,
+        y: 40,
+        filter: "blur(10px)",
+      });
+
+      // Animate each line sequentially with slower timing
+      tl.to(v2line1Ref.current, {
+        opacity: 1,
+        y: 0,
+        filter: "blur(0px)",
+        duration: 1.5,
+        delay: 0.3,
+      })
+        .to(v2line2Ref.current, {
+          opacity: 1,
+          y: 0,
+          filter: "blur(0px)",
+          duration: 1.5,
+        }, "+=2")
+        .to(v2line3Ref.current, {
+          opacity: 1,
+          y: 0,
+          filter: "blur(0px)",
+          duration: 1.5,
+        }, "+=2");
+    }, viewport2Ref);
+
+    return () => ctx.revert();
+  }, [viewport2Visible]);
+
+  // Intersection observer for Viewport 2
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !viewport2Visible) {
+            setViewport2Visible(true);
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    if (viewport2Ref.current) {
+      observer.observe(viewport2Ref.current);
+    }
+
+    return () => observer.disconnect();
+  }, [viewport2Visible]);
 
   // Handle section detection using Intersection Observer
   useEffect(() => {
@@ -343,6 +413,7 @@ export function ChatLandingWindow() {
       {/* Viewport 2: Your Data. Your Sanctuary. */}
       <section
         id="viewport-2-section"
+        ref={viewport2Ref}
         className="relative flex flex-col items-center justify-center min-h-[calc(100svh-2rem)] md:min-h-screen w-full px-4 py-12 md:py-16 overflow-hidden"
       >
         {/* Sparkles Background - Viewport 2 */}
@@ -365,23 +436,19 @@ export function ChatLandingWindow() {
         <div className="flex flex-1 items-center justify-center flex-col relative z-10">
           <div className="text-center max-w-4xl mx-auto space-y-12 md:space-y-16">
             {/* Line 1 */}
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
-              viewport={{ once: true, margin: "-100px" }}
+            <p
+              ref={v2line1Ref}
               className="text-xl md:text-2xl lg:text-3xl font-light leading-relaxed text-gray-900 dark:text-gray-100"
+              style={{ opacity: 0 }}
             >
               It's time for clarity and control.
-            </motion.p>
+            </p>
 
             {/* Line 2 */}
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1], delay: 0.2 }}
-              viewport={{ once: true, margin: "-100px" }}
+            <p
+              ref={v2line2Ref}
               className="text-lg md:text-xl lg:text-2xl leading-relaxed text-gray-600 dark:text-gray-400 font-light"
+              style={{ opacity: 0 }}
             >
               A place of{" "}
               <span className="font-bold text-gray-900 dark:text-gray-100">focus</span>,{" "}
@@ -389,20 +456,18 @@ export function ChatLandingWindow() {
               <span className="font-bold text-gray-900 dark:text-gray-100">true ownership</span>{" "}
               - a place that is{" "}
               <span className="text-blue-500 dark:text-blue-400 font-bold">yours</span>.
-            </motion.p>
+            </p>
 
             {/* Main Heading - smaller but still prominent */}
-            <motion.h1
-              initial={{ opacity: 0, y: 30, scale: 0.95 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 1.2, ease: [0.25, 0.1, 0.25, 1], delay: 0.4 }}
-              viewport={{ once: true, margin: "-100px" }}
+            <h1
+              ref={v2line3Ref}
               className="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight leading-tight text-gray-900 dark:text-gray-100 text-balance pt-4"
+              style={{ opacity: 0 }}
             >
               Your Data.
               <br />
               Your Sanctuary.
-            </motion.h1>
+            </h1>
           </div>
         </div>
       </section>
